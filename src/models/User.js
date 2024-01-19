@@ -6,9 +6,7 @@ const userSchema = mongoose.Schema({
         required:true,
         unique:true
     },
-    fcm_token:{
-        type:String
-    },
+    
     name:{
         type:String,
         // required:true
@@ -25,6 +23,10 @@ const userSchema = mongoose.Schema({
     coins:{
         type:Number,
         default:0
+    },
+    Balls:{
+        type:Number,
+        default:5
     },
     highestScore:{
         type:Number,
@@ -59,7 +61,8 @@ const userSchema = mongoose.Schema({
             ref:'level'
         }
     ]
-})
+},{timestamps:true}
+)
 
 
 const userModel = mongoose.model('user',userSchema);
