@@ -53,7 +53,7 @@ export async function adminLoginController(req,res){
 
 export async function getAllUsersController(req,res){
   try {
-      const users = await userModel.find({}).populate('achivements').populate('levels');
+      const users = await userModel.find({}).populate('achievements').populate('levels');
       return res.send(success(200,users));
   } catch (err) {
       return res.send(error(500,err.message));

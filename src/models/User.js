@@ -6,7 +6,10 @@ const userSchema = mongoose.Schema({
         required:true,
         unique:true
     },
-    
+    referralCode:{
+        type:String,
+     
+    },
     name:{
         type:String,
         // required:true
@@ -48,10 +51,10 @@ const userSchema = mongoose.Schema({
         type: Number,
         default:0
     },
-    achivements:[
+    achievements:[
         {
             type:mongoose.Schema.Types.ObjectId,
-            ref:"achivement"
+            ref:"achievement"
          
         }
     ],

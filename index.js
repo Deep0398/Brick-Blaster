@@ -1,6 +1,5 @@
 import express from "express";
 import session  from 'express-session';
-import  passport  from "passport";
 import morgan from "morgan";
 import cors from "cors";
 import connectDB from "./src/config/configDB.js";
@@ -9,6 +8,8 @@ import achievementRouter from "./src/routers/AchievementRouter.js";
 import userRouter from "./src/routers/UserRouter.js";
 import levelRouter from "./src/routers/LevelRouter.js";
 import adminRouter from "./src/routers/AdminRouter.js";
+//import { generateUniqueReferralCode } from "./src/services/generateReferalCode.js";
+
 
 
 
@@ -31,6 +32,7 @@ app.use('/user',userRouter);
 app.use('/level',levelRouter);
 app.use('/admin',adminRouter)
 const port = process.env.PORT || 3000;
+
 app.listen(port, '0.0.0.0',() => {
-  
+    console.log(`server is running on ${port}`)
 });

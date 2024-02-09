@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticLoginController, getUserController, guestLoginController } from '../controllers/UserController.js';
+import { authenticLoginController, getUserController, guestLoginController, referAndEarnController } from '../controllers/UserController.js';
 import { checkUserLogin } from '../middleware/middlewares.js';
 import { updateBallController, updateCoinController } from '../controllers/UpdateController.js';
 const userRouter = express.Router();
@@ -9,7 +9,7 @@ userRouter.post('/guestlogin',guestLoginController);
 userRouter.get('/get',checkUserLogin , getUserController);
 userRouter.post('/updateCoins',checkUserLogin,updateCoinController);
 userRouter.post('/updateBalls',checkUserLogin,updateBallController);
-
+userRouter.post('/refer',checkUserLogin,referAndEarnController);
 
 
 export default userRouter;
