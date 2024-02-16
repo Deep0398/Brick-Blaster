@@ -6,42 +6,42 @@ import { error, success } from "../utills/responseWrapper.utills.js";
 import { generateUniqueReferralCode } from "../services/generateReferalCode.js";
 
  
+
 export async function authenticLoginController(req,res){
-  try {
-     // i have made chanhgedcls
-  
-      const {deviceID,name,email,profileURL} = req.body;
-      if(!name || !email ||!deviceID){
-          return res.send(error(422,"insufficient data"));
-      }
-
-
-      const existingUser =  await authModel.findOne({email});
-  
-      const referralCode =  generateUniqueReferralCode();
-      console.log(referralCode);
-    
-      if(!existingUser){
+    try {
        
-          const newUser = new userModel({deviceID,name,email,profileURL,referralCode});
-           const createUser = await newUser.save();
-          const accessToken = generateAccessToken({...createUser});
-          return res.send(success(200, { accessToken, isNewUser: true }));
-      }
-
-      //  if user already present
-      existingUser.name = name;
-      existingUser.email = email;
-      existingUser.profileURL = profileURL;
-      await existingUser.save();
-      const accessToken = generateAccessToken({...existingUser});
-      return res.send(success(200, { accessToken, isNewUser: false }));
-     
-  }catch (err){
-      return res.send(error(500,err.message));
+    
+        const {deviceID,name,email,profileURL} = req.body;
+        if(!name || !email ||!deviceID){
+            return res.send(error(422,"insufficient data"));
+        }
+  
+  
+        const existingUser =  await authModel.findOne({email});
+    
+        const referralCode =  generateUniqueReferralCode();
+        console.log(referralCode);
+      
+        if(!existingUser){
+         
+            const newUser = new authModel({deviceID,name,email,profileURL,referralCode});
+             const createUser = await newUser.save();
+            const accessToken = generateAccessToken({...createUser});
+            return res.send(success(200, { accessToken, isNewUser: true }));
+        }
+  
+        //  if user already present
+        existingUser.name = name;
+        existingUser.email = email;
+        existingUser.profileURL = profileURL;
+        await existingUser.save();
+        const accessToken = generateAccessToken({...existingUser});
+        return res.send(success(200, { accessToken, isNewUser: false }));
+       
+    }catch (err){
+        return res.send(error(500,err.message));
+    }
   }
-}
-
 export async function guestLoginController(req, res) {
   try {
       const { deviceID } = req.body;
