@@ -1,29 +1,13 @@
 import mongoose from "mongoose";
 
-const userSchema = mongoose.Schema({
-    deviceID:{
-        type:String,
-        required:true,
-        unique:true
-    },
+const commonSchema = mongoose.Schema({
+   
     referralCode:{
         type:String,
      
     },
-    name:{
-        type:String,
-        // required:true
-    },
-    email:{
-        type:String,
-        // required:true,
-        // unique:true
-    },
-    profileURL:{
-        type:String,
-        default:null
-    },
-    coins:{
+  
+   coins:{
         type:Number,
         default:0
     },
@@ -66,7 +50,27 @@ const userSchema = mongoose.Schema({
     ]
 },{timestamps:true}
 )
+const guestSchema = new mongoose.Schema({
+    deviceID:{
+        type:String,
+        unique:true,
+        required:true
+    }
+})
+const authSchema = new mongoose.Schema({
+    name:{
+        type:String,
+    },
+    email:{
+        type:String,
+        unique:true,
+        required:true
+        
+    }
+})
 
 
-const userModel = mongoose.model('user',userSchema);
-export default userModel;
+export const userModel = mongoose.model('user', commonSchema);
+
+export  const guestModel = userModel.discriminator('guestPlayer', guestSchema);
+export const authModel = userModel.discriminator('authPlayer', authSchema);

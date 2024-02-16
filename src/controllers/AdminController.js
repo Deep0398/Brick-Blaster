@@ -1,5 +1,5 @@
 import adminModel from "../models/Admin.js"
-import userModel from "../models/User.js";
+import {userModel} from "../models/User.js";
 import bcrypt from 'bcrypt'
 import { generateAccessToken } from "../services/generateAccessToken.service.js";
 import { error, success } from "../utills/responseWrapper.utills.js";

@@ -1,5 +1,5 @@
 import levelModel from "../models/Level.js";
-import userModel from "../models/User.js";
+import {userModel} from "../models/User.js";
 import {success,error} from "../utills/responseWrapper.utills.js"
 
 

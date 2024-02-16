@@ -1,20 +1,11 @@
-import userModel from "../models/User.js";
+import { guestModel } from "../models/User.js";
+import { authModel } from "../models/User.js";
+import { userModel } from "../models/User.js"
 import { generateAccessToken } from "../services/generateAccessToken.service.js";
 import { error, success } from "../utills/responseWrapper.utills.js";
 import { generateUniqueReferralCode } from "../services/generateReferalCode.js";
 
-export async function getUserController(req,res){
-  try {
-      const currUserID = req._id;
-      const user = await userModel.findOne({_id:currUserID}).populate('achievements').populate('levels');
-      if(!user){
-          return res.send(error(404,"user not found"));
-      }
-      return res.send(success(200,user));
-  } catch (err) {
-      return res.send(error(500,err.message));
-  }
-} 
+ 
 export async function authenticLoginController(req,res){
   try {
      
@@ -25,7 +16,7 @@ export async function authenticLoginController(req,res){
       }
 
 
-      const existingUser =  await userModel.findOne({deviceID});
+      const existingUser =  await authModel.findOne({email});
   
       const referralCode =  generateUniqueReferralCode();
       console.log(referralCode);
@@ -52,30 +43,44 @@ export async function authenticLoginController(req,res){
 }
 
 export async function guestLoginController(req, res) {
-    try {
+  try {
       const { deviceID } = req.body;
+      console.log(deviceID);
+     
       if (!deviceID) {
-        return res.send(error(422, "Insufficient data"));
+          return res.send(error(422, "insufficient data"));
       }
-  
-      // Check if the user already exists in the database
-      const existingUser = await userModel.findOne({ deviceID });
-  
-      // If user not present, create a new guest user
-      const referralCode =  generateUniqueReferralCode();
+     
+      const  existingUser = await guestModel.findOne({ deviceID });
+     
       if (!existingUser) {
-        const newUser = new userModel({ deviceID ,referralCode});
-        const createdUser = await newUser.save();
-        const accessToken = generateAccessToken({ ...createdUser });
-        return res.send(success(200, { accessToken, isNewUser: true })); // Indicate that the user is a new user
+         
+          const referralCode = generateUniqueReferralCode();
+        
+          const newUser = await guestModel.create({deviceID,referralCode});
+          console.log(newUser);
+          const accessToken = generateAccessToken({ ...newUser })
+          return res.send(success(200,{accessToken, isNewUser: true}))
       }
-  
-      // If user already present, generate access token and return
+
       const accessToken = generateAccessToken({ ...existingUser });
-      return res.send(success(200, { accessToken, isNewUser: false })); // Indicate that the user is not a new user
-  
-    } catch (err) {
+      return res.send(success(200, {accessToken, isNewUser: false}));
+  } catch (err) {
+    
       return res.send(error(500, err.message));
+  }
+}
+
+export async function getUserController(req,res){
+    try {
+        const currUserID = req._id;
+        const user = await userModel.findOne({_id:currUserID}).populate('achievements').populate('levels');
+        if(!user){
+            return res.send(error(404,"user not found"));
+        }
+        return res.send(success(200,user));
+    } catch (err) {
+        return res.send(error(500,err.message));
     }
   }
   export async function referAndEarnController(req,res){
