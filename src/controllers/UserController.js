@@ -8,7 +8,7 @@ import { generateUniqueReferralCode } from "../services/generateReferalCode.js";
  
 export async function authenticLoginController(req,res){
   try {
-     
+     // i have made chanhgedcls
   
       const {deviceID,name,email,profileURL} = req.body;
       if(!name || !email ||!deviceID){
