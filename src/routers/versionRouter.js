@@ -1,10 +1,11 @@
 import express from "express";
-import { insertVersionController } from "../controllers/versionController.js";
+import { getVersionController, insertVersionController } from "../controllers/versionController.js";
 
 
 const versionRouter = express.Router();
 
 
 versionRouter.post("/insert",insertVersionController);
+versionRouter.get('/get',getVersionController);
 
 export default versionRouter;
