@@ -59,3 +59,12 @@ export async function getAllUsersController(req,res){
       return res.send(error(500,err.message));
   }
 }
+
+export async function deleteAllUsers(req,res){
+    try {
+        await userModel.deleteMany({});
+        return res.send(success(200,"all users deleted successfully"))
+    } catch (err) {
+        return res.send (error(500,err.message));
+    }
+}
