@@ -123,3 +123,14 @@ export async function getUserController(req,res){
             return res.send(error(500,err.message));
         }
   }
+
+  export async function getUnlockLevels(req,res){
+    try {
+        const id = req._id;
+        const user = await userModel.findById(id);
+        const unlockLevelcount = user?.levels?.length;
+        return res.send(success(200,{unlockLevelcount}));
+    } catch (err) {
+        return res.send(error(500,err.message));
+    }
+}

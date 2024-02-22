@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
 
 const levelSchema = mongoose.Schema({
-    level : {type:Number},
-    status:{type:Boolean},
+    level : {type:Number},    
     score:{type:Number,default:0},
     stars:{type:Number,default:0},
     user : {

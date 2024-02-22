@@ -6,12 +6,12 @@ import {success,error} from "../utills/responseWrapper.utills.js"
 
 export  async function postLevelController(req,res){
     try {
-        const {level,status,score,stars} = req.body;
-        if(!level || !status || !score || !stars)
+        const {level,score,stars} = req.body;
+        if(!level || !score || !stars)
         return res.send(error(422,"insufficient data"));
     
         const user = req._id;
-        const levelInfo = new levelModel({level,status,score,stars,user});
+        const levelInfo = new levelModel({level,score,stars,user});
         const createdLevel = await levelInfo.save();
                 
         const currUser = await userModel.findById(user);
