@@ -68,9 +68,20 @@ const authSchema = new mongoose.Schema({
         
     }
 })
+const facebookSchema = new mongoose.Schema({
+    facebookID:{
+        type:String,
+        unique:true
+       
+    },
+    phoneNo:{
+        type:String,
+        unique:true
+    }
+})
 
 
 export const userModel = mongoose.model('user', commonSchema);
-
+export const facebookModel = userModel.discriminator('facebookPlayer',facebookSchema);
 export  const guestModel = userModel.discriminator('guestPlayer', guestSchema);
 export const authModel = userModel.discriminator('authPlayer', authSchema);
