@@ -15,11 +15,11 @@ export  async function postLevelController(req,res){
         if(isLevelExist){
             return res.send(error(409,"Level already exists"));
         }
-        const levelInfo = new levelModel({level,score,star,user});
+        const levelInfo = new levelModel({level,score,stars,user});
         const createdLevel = await levelInfo.save();
                 
         const currUser = await userModel.findById(user);
-        currUser.Levels.push(createdLevel._id);
+        currUser?.levels?.push(createdLevel._id);
         await currUser.save();
 
         res.send(success(200,createdLevel));
