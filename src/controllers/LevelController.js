@@ -6,9 +6,9 @@ import {success,error} from "../utills/responseWrapper.utills.js"
 
 export  async function postLevelController(req,res){
     try {
-        const {level,score,star} = req.body;
+        const {level,score,stars} = req.body;
         const user = req._id;
-        if(!level || !score || !star)
+        if(!level || !score || !stars)
         return res.send(error(404,"all fields are required"));
     
         const isLevelExist = await levelModel.findOne({$and:[{level},{user}]});
