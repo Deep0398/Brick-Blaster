@@ -11,6 +11,14 @@ const commonSchema = mongoose.Schema({
         type:Number,
         default:0
     },
+    INR:{
+        type:Number,
+        default:0
+    },
+    level:{
+        type:Number,
+        default:1
+    },
     Balls:{
         type:Number,
         default:5
