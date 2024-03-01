@@ -9,6 +9,9 @@ export async function updateCoinController(req,res){
             return res.send(error(404,"user not found"));
         }
         user.coins +=Coins;
+        if (user.coins<0){
+            return res.send(error(400,"coins cannot be negative"));
+        }
         await user.save();
         return res.send(success(200,"coins updated successfully"));
 
@@ -26,6 +29,9 @@ export async function updateBallController(req,res){
             return res.send(error(404,"user not found"));
         }
         user.Balls+= balls
+        if (user.Balls<0){
+            return res.send(error(400,"balls cannot be negative"));
+        }
         await user.save();
         return res.send(success(200,"balls updated successfully"));
     } catch (err) {
