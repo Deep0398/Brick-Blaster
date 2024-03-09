@@ -9,11 +9,13 @@ const commonSchema = mongoose.Schema({
   
    coins:{
         type:Number,
-        default:0
+        default:0,
+        min:0
     },
     INR:{
         type:Number,
-        default:0
+        default:0,
+        min:0
     },
     level:{
         type:Number,
@@ -21,27 +23,33 @@ const commonSchema = mongoose.Schema({
     },
     Balls:{
         type:Number,
-        default:5
+        default:5,
+        min:0
     },
     highestScore:{
         type:Number,
-        default:0
+        default:0,
+        min:0
     },
     ruby:{
         type: Number,
-        default:0
+        default:0,
+        min:0
     },
     powerups1:{
         type: Number,
-        default:0
+        default:0,
+        min:0,
     },
     powerups2:{
         type: Number,
-        default:0
+        default:0,
+        min:0
     },
     powerups3:{
         type: Number,
-        default:0
+        default:0,
+        min:0
     },
     achievements:[
         {
