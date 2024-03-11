@@ -47,7 +47,7 @@ export async function updateUserController (req,res){
         const user = await userModel.findById(userID);
         user.isReferred = false;
         await user.save();
-        return res.send(success(200,"user updated successfully"))
+        return res.send(success(200,user))
     } catch (err) {
         return res.send(error(500,err.message));
     }
