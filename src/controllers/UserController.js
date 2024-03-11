@@ -10,32 +10,30 @@ import { generateUniqueReferralCode } from "../services/generateReferalCode.js";
 export async function guestLoginController(req, res) {
     try {
         const { deviceID } = req.body;
-       
+        console.log(deviceID);
        
         if (!deviceID) {
             return res.send(error(422, "insufficient data"));
         }
        
-        const  existingUser = await guestModel.findOne({ deviceID });
+        const existingUser = await guestModel.findOne({ deviceID });
        
-        if (!existingUser) {
-           
-            const referralCode = generateUniqueReferralCode();
-          
-            const newUser = await guestModel.create({deviceID,referralCode});
-            console.log(newUser);
-            const accessToken = generateAccessToken({ ...newUser })
-            return res.send(success(200,{accessToken, isNewUser: true}))
+        if (existingUser) {
+            // If the existing user is found, delete it
+            await guestModel.deleteOne({ deviceID });
         }
-  
-        const accessToken = generateAccessToken({ ...existingUser });
-        return res.send(success(200, {accessToken, isNewUser: false}));
+       
+        const referralCode = generateUniqueReferralCode();
+          
+        const newUser = await guestModel.create({ deviceID, referralCode });
+        console.log(newUser);
+        const accessToken = generateAccessToken({ ...newUser })
+        return res.send(success(200, { accessToken, isNewUser: true }));
+        
     } catch (err) {
-      
         return res.send(error(500, err.message));
     }
-  }
-  
+}
   export async function authenticLoginController(req, res) {
     try {
         const { email, deviceID ,name} = req.body;
@@ -157,7 +155,8 @@ export async function getUserController(req,res){
     }
   }
  
-  export async function referAndEarnController(req, res) {
+  
+export async function referAndEarnController(req, res) {
     const currUser = req._id;
     const { referralCode } = req.body;
     try {
@@ -183,8 +182,9 @@ export async function getUserController(req,res){
         await referrer.save();
 
         referred.coins += 10;
+        referred.isReferUsed = true;
         await referred.save();
-
+        
         // Restore the original referral codes
         referrer.referralCode = originalReferralCodeReferrer;
         referrer.isReferred = true;
