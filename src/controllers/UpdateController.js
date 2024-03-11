@@ -40,3 +40,15 @@ export async function updateBallController(req,res){
     
     }
 }
+
+export async function updateUserController (req,res){
+    try {
+        const userID = req._id;
+        const user = await userModel.findById(userID);
+        user.isReferred = false;
+        await user.save();
+        return res.send(success(200,"user updated successfully"))
+    } catch (err) {
+        return res.send(error(500,err.message));
+    }
+}
