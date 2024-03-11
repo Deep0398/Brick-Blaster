@@ -176,7 +176,7 @@ export async function getUserController(req,res){
             await refferer.save();
             reffered.coins+=10;
             await reffered.save();
-         return res.send(success(200,refferer));
+         return res.send(success(200,{isReferred:true}));
             
         } catch (err) {
             return res.send(error(500,err.message));
