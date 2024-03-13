@@ -94,3 +94,40 @@ export  async function updateLevelController(req,res){
         return res.send(error(500,err.message));
     }
 }
+
+export async function postAllLevelController(req, res) {
+    try {
+        const levelsData = req.body.levels; // Assuming levelsData is an array of level objects
+        const user = req._id;
+        if (!Array.isArray(levelsData) || levelsData.length === 0) {
+            return res.send(error(400, "Levels data is required and should be an array."));
+        }
+
+        const createdLevels = [];
+        for (const levelData of levelsData) {
+            const { level, score, stars } = levelData;
+            if (!level || !score || !stars) {
+                return res.send(error(400, "Level data must contain level, score, and stars."));
+            }
+
+            const isLevelExist = await levelModel.findOne({ level, user });
+            if (isLevelExist) {
+                return res.send(error(409, `Level ${level} already exists for the user.`));
+            }
+
+            const levelInfo = new levelModel({ level, score, stars, user });
+            const createdLevel = await levelInfo.save();
+            createdLevels.push(createdLevel._id);
+
+            const currUser = await userModel.findById(user);
+            currUser?.levels?.push(createdLevel._id);
+            await currUser.save();
+        }
+
+        res.send(success(200, { createdLevels }));
+
+    } catch (err) {
+        return res.send(error(500, err.message));
+    }
+}
+
