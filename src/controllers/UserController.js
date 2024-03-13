@@ -84,7 +84,7 @@ export async function guestLoginController(req, res) {
 }
 export async function facebookLoginController(req, res) {
     try {
-        const { facebookID, deviceID } = req.body;
+        const { facebookID, deviceID,name } = req.body;
         if (!facebookID && !deviceID ) {
             return res.send(error(422, "insufficient data"));
         }
@@ -105,7 +105,8 @@ export async function facebookLoginController(req, res) {
             const referralCode = generateUniqueReferralCode();
             const newUser = new facebookModel({  
                 referralCode,
-                facebookID 
+                facebookID ,
+                name
                
             });
             
@@ -207,5 +208,125 @@ export async function referAndEarnController(req, res) {
         return res.send(success(200,{unlockLevelcount}));
     } catch (err) {
         return res.send(error(500,err.message));
+    }
+}
+
+export async function getdetailController(req, res) {
+    try {
+        
+        const totalUsers = await userModel.countDocuments();
+        const zeroCount = await userModel.countDocuments({ __v: 0 });
+        const oneCount = await userModel.countDocuments({ __v: 1 });
+        const twoCount = await userModel.countDocuments({ __v: 2 });
+        const threeCount = await userModel.countDocuments({ __v: 3 });
+        const fourCount = await userModel.countDocuments({ __v: 4 });
+        const fiveCount = await userModel.countDocuments({ __v: 5});
+        const sixCount = await userModel.countDocuments({ __v: 6 });
+        const sevenCount = await userModel.countDocuments({ __v: 7 });
+        const eightCount = await userModel.countDocuments({ __v: 8});
+        const nineCount = await userModel.countDocuments({ __v: 9 });
+        const tenCount = await userModel.countDocuments({ __v: 10});
+        const elevenCount = await userModel.countDocuments({ __v: 11 });
+        const twelveCount = await userModel.countDocuments({ __v: 12 });
+        const thirteenCount = await userModel.countDocuments({ __v: 13 });
+        const fourteenCount = await userModel.countDocuments({ __v: 14 });
+        const fifteenCount = await userModel.countDocuments({ __v: 15 });
+        const sixteenCount = await userModel.countDocuments({ __v: 16 });
+        const seventeenCount = await userModel.countDocuments({ __v: 17 });
+        const eighteenCount = await userModel.countDocuments({ __v: 18 });
+        const ninteenCount = await userModel.countDocuments({ __v: 19 });
+        const twentyCount = await userModel.countDocuments({ __v: 20 });
+        const twentyoneCount = await userModel.countDocuments({ __v:21});
+        const twentytwoCount = await userModel.countDocuments({ __v: 22});
+        const twentythreeCount = await userModel.countDocuments({ __v: 23 });
+        const  twentyfourCount = await userModel.countDocuments({ __v: 24 });
+        const  twentyfiveCount = await userModel.countDocuments({ __v: 25 });
+        const  twentysixCount = await userModel.countDocuments({ __v: 26});
+        const  twentysevenCount = await userModel.countDocuments({ __v: 27 });
+        const  twentyeightCount = await userModel.countDocuments({ __v: 28 });
+        const twentynineCount = await userModel.countDocuments({ __v: 29 });
+        const  thirtyCount = await userModel.countDocuments({ __v: 30 });
+        const thirtyoneCount = await userModel.countDocuments({ __v: 31 });
+        const thirtytwoCount = await userModel.countDocuments({ __v: 32});
+        const thirtythreeCount = await userModel.countDocuments({ __v: 33 });
+        const thirtyfourCount = await userModel.countDocuments({ __v: 34 });
+        const  thirtyfiveCount = await userModel.countDocuments({ __v: 35 });
+        const thirtysixCount = await userModel.countDocuments({ __v: 36 });
+        const thirtysevenCount = await userModel.countDocuments({ __v: 37 });
+        const thirtyeightCount = await userModel.countDocuments({ __v: 38});
+        const thirtynineCount = await userModel.countDocuments({ __v: 39 });
+        const fourtyCount = await userModel.countDocuments({ __v: 40 });
+        const fourtyoneCount = await userModel.countDocuments({ __v: 41 });
+        const fourtytwoCount = await userModel.countDocuments({ __v: 42 });
+        const fourtythreeCount = await userModel.countDocuments({ __v: 43 });
+        const fourtyfourCount = await userModel.countDocuments({ __v: 44 });
+        const fourtyfiveCount = await userModel.countDocuments({ __v: 45 });
+        const fourtysixCount = await userModel.countDocuments({ __v: 46 });
+        const fourtysevenCount = await userModel.countDocuments({ __v: 47});
+        const fourtyeightCount = await userModel.countDocuments({ __v: 48 });
+        const fourtynineCount = await userModel.countDocuments({ __v: 49});
+        const fiftyCount = await userModel.countDocuments({ __v: 50 });
+        
+
+        return res.send( {
+            totalUsers,
+            zeroCount ,
+            oneCount ,
+           twoCount ,
+            threeCount,
+            fourCount,
+            fiveCount ,
+            sixCount,
+            sevenCount ,
+           eightCount ,
+            nineCount ,
+           tenCount,
+         elevenCount,
+           twelveCount ,
+           thirteenCount ,
+        fourteenCount ,
+            fifteenCount,
+        sixteenCount ,
+          seventeenCount ,
+          eighteenCount, 
+           ninteenCount,
+            twentyCount ,
+          twentyoneCount ,
+        twentytwoCount ,
+           twentythreeCount ,
+             twentyfourCount,
+         twentyfiveCount,
+             twentysixCount,
+            twentysevenCount ,
+           twentyeightCount ,
+            twentynineCount ,
+             thirtyCount ,
+            thirtyoneCount ,
+           thirtytwoCount,
+           thirtythreeCount,
+            thirtyfourCount ,
+             thirtyfiveCount ,
+           thirtysixCount ,
+            thirtysevenCount,
+          thirtyeightCount,
+           thirtynineCount ,
+            fourtyCount ,
+            fourtyoneCount ,
+           fourtytwoCount ,
+           fourtythreeCount ,
+            fourtyfourCount ,
+            fourtyfiveCount ,
+           fourtysixCount ,
+            fourtysevenCount, 
+            fourtyeightCount ,
+            fourtynineCount, 
+           fiftyCount 
+           
+         
+        
+        
+        });
+    } catch (err) {
+        return res.send(error(500, err.message));
     }
 }

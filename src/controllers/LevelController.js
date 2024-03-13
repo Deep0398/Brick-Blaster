@@ -1,6 +1,7 @@
 import levelModel from "../models/Level.js";
 import {userModel} from "../models/User.js";
 import {success,error} from "../utills/responseWrapper.utills.js"
+import mongoose from "mongoose";
 
 
 
@@ -99,7 +100,7 @@ export async function postAllLevelController(req, res) {
     try {
         const levelsData = req.body.levels;
          // Assuming levelsData is an array of level objects
-         console.log(levelsData);
+        
         const user = req._id;
         if (!Array.isArray(levelsData) || levelsData.length === 0) {
             return res.send(error(400, "Levels data is required and should be an array."));
@@ -107,21 +108,25 @@ export async function postAllLevelController(req, res) {
 
         const createdLevels = [];
         for (const levelData of levelsData) {
-            console.log(levelData)
+            
             const { level, score, stars } = levelData;
             console.log(level,score,stars)
           
 
-            const isLevelExist = await levelModel.findOne({ level, user });
-            if (isLevelExist) {
-                return res.send(error(409, `Level ${level} already exists for the user.`));
-            }
+            // const isLevelExist = await levelModel.findOne({ level, user });
+            // if (isLevelExist) {
+            //     return res.send(error(409, `Level ${level} already exists for the user.`));
+            // }
 
             const levelInfo = new levelModel({ level, score, stars, user });
+            console.log(levelInfo);
             const createdLevel = await levelInfo.save();
-            createdLevels.push(createdLevel._id);
+            console.log(createdLevel)
+            createdLevels.push(new mongoose.Types.ObjectId(createdLevel._id));
+            console.log(createdLevels)
 
-            const currUser = await userModel.findById(user);
+            const currUser = await userModel.findById(new mongoose.Types.ObjectId(user));
+            console.log(currUser);
             currUser?.levels?.push(createdLevel._id);
             await currUser.save();
         }

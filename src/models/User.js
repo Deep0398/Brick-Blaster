@@ -98,9 +98,9 @@ const facebookSchema = new mongoose.Schema({
         unique:true
        
     },
-    phoneNo:{
+    name:{
         type:String,
-        unique:true
+        
     }
 })
 
