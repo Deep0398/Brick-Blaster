@@ -97,7 +97,9 @@ export  async function updateLevelController(req,res){
 
 export async function postAllLevelController(req, res) {
     try {
-        const levelsData = req.body.levels; // Assuming levelsData is an array of level objects
+        const levelsData = req.body.levels;
+         // Assuming levelsData is an array of level objects
+         console.log(levelsData);
         const user = req._id;
         if (!Array.isArray(levelsData) || levelsData.length === 0) {
             return res.send(error(400, "Levels data is required and should be an array."));
@@ -105,10 +107,10 @@ export async function postAllLevelController(req, res) {
 
         const createdLevels = [];
         for (const levelData of levelsData) {
+            console.log(levelData)
             const { level, score, stars } = levelData;
-            if (!level || !score || !stars) {
-                return res.send(error(400, "Level data must contain level, score, and stars."));
-            }
+            console.log(level,score,stars)
+          
 
             const isLevelExist = await levelModel.findOne({ level, user });
             if (isLevelExist) {
