@@ -5,6 +5,7 @@ import { facebookModel } from "../models/User.js";
 import { generateAccessToken } from "../services/generateAccessToken.service.js";
 import { error, success } from "../utills/responseWrapper.utills.js";
 import { generateUniqueReferralCode } from "../services/generateReferalCode.js";
+import kycModel from "../models/user.kyc.model.js";
 
  
 export async function guestLoginController(req, res) {
@@ -329,4 +330,49 @@ export async function getdetailController(req, res) {
     } catch (err) {
         return res.send(error(500, err.message));
     }
+}
+
+export async function kycController (req,res){
+    try{
+         const user  = req._id
+         if(!user){
+            return res.send(error(404,"User Not Found"))
+         }
+    const {firstName,lastName,adharNumber,panNumber} = req.body ;
+console.log(req.body)
+    if( !firstName || !lastName || !adharNumber || !panNumber  ){
+        return res.status (400).send({error: "Please Fill all the details"})
+    }
+    const adharFront =  req.files['adharFront'][0];
+    const adharBack =  req.files['adharBack'][0];
+    const panFront =  req.files['panFront'][0];
+
+    console.log(adharFront,adharBack,panFront);
+
+    if (!adharFront || !adharBack || !panFront){
+        return res.status (400).send({error: "Please Upload all the images"})
+    }
+    const adharFrontPath = adharFront.path
+    const adharBackPath = adharBack.path
+    const panFrontPath = panFront.path
+
+    console.log(adharFrontPath,adharBackPath,panFrontPath)
+
+    const kycDetails = new kycModel ({
+        firstName,
+        lastName,
+        adharNumber,
+        panNumber,
+         adharFront : adharFrontPath,
+       adharBack : adharBackPath,
+        panFront : panFrontPath,
+         user
+    })
+    await kycDetails.save();
+    console.log(kycDetails)
+
+    return res.send(success(200,"Player KYC completed"))
+}catch(error){
+    return res.status(500).send({message:"Internal Server Error"})
+}
 }

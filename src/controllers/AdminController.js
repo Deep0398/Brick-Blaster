@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt'
 import { generateAccessToken } from "../services/generateAccessToken.service.js";
 import { error, success } from "../utills/responseWrapper.utills.js";
 import createChallengeModel from "../models/admin.challenge.model.js"
+import kycModel from "../models/user.kyc.model.js";
 
 export async function adminSignupController(req,res){
     try {
@@ -157,4 +158,45 @@ export async function deleteChallengeController(req,res){
         return res.send(500,err.message)
     }
 
+}
+
+export async function getKycController(req,res){
+    try{
+        const admin = req._id;
+        const adminDetail = await adminModel.findById({_id:admin})
+        if(!adminDetail){
+            return res.send(error(404,"Admin not found"))
+        }
+        const kycList = await kycModel.find({})
+
+        return res.send(success(200,kycList,"KYC list Fetched Successfully"))
+    }catch(error){
+        return res.send(500,error.message)
+    }
+
+}
+
+export async function updateKycStatusContoller(req,res){
+    try{
+        const admin = req._id
+        const adminDetail = await adminModel.findById({_id:admin})
+        if(!adminDetail){
+            return res.send(error(404,"Admin not found"))
+        }
+        const {status} = req.body
+        const userId = req.params.id
+        const userDetails = await userModel.findByIdAndUpdate(userId,{$set: {kycstatus :status}})
+
+        if (!userDetails){
+            return res.send(error(404,"User Not Found"))
+        }
+        const kycDetails = await kycModel.findOne({user:userId})
+        kycDetails.status = status
+        await kycDetails.save()
+
+
+        return res.send(success(200,"KYC status updated successfully"))
+    }catch(error){
+        return res.send(500,error.message)
+    }
 }
