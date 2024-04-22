@@ -15,7 +15,9 @@ const challengeSchema = mongoose.Schema({
         required:true
     },
     status:{
-        type: String
+        type: String,
+        enum :['complete','incomplete'],
+        default : 'incomplete'
     },
     user:{
         type: mongoose.Schema.Types.ObjectId,

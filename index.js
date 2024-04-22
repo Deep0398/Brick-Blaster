@@ -9,6 +9,7 @@ import userRouter from "./src/routers/UserRouter.js";
 import levelRouter from "./src/routers/LevelRouter.js";
 import adminRouter from "./src/routers/AdminRouter.js";
 import versionRouter from "./src/routers/versionRouter.js";
+import challengeRouter from "./src/routers/user.challenge.router.js";
 //import { generateUniqueReferralCode } from "./src/services/generateReferalCode.js";
 
 
@@ -33,6 +34,7 @@ app.use('/user',userRouter);
 app.use('/level',levelRouter);
 app.use('/admin',adminRouter);
 app.use('/version',versionRouter);
+app.use('/challenge',challengeRouter)
 const port = process.env.PORT || 3000;
 
 app.listen(port, '0.0.0.0',() => {
