@@ -5,6 +5,8 @@ import { generateAccessToken } from "../services/generateAccessToken.service.js"
 import { error, success } from "../utills/responseWrapper.utills.js";
 import createChallengeModel from "../models/admin.challenge.model.js"
 import kycModel from "../models/user.kyc.model.js";
+import { generateUniqueReferenceId } from "../services/generateRefrenceID.js";
+
 
 export async function adminSignupController(req,res){
     try {
@@ -77,7 +79,10 @@ export async function createChallengeController(req,res){
         return res.send(404,"Insufficient Data")
     }
 
+    const referenceId = generateUniqueReferenceId()
+
     const newChallenge = new createChallengeModel ({
+        referenceId,
         name, 
         description,
         isActive:isActive || true,

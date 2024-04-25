@@ -66,6 +66,15 @@ const commonSchema = mongoose.Schema({
          
         }
     ],
+    challenges:[
+        { challengeId:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref:'challenge',
+        },
+        referenceId:String
+
+        
+        }],
     levels:[
         {
             type:mongoose.Schema.Types.ObjectId,

@@ -2,7 +2,7 @@ import createChallengeModel from "../models/admin.challenge.model.js";
 import challengemodel from "../models/user.challenge.model.js";
 import { userModel } from "../models/User.js";
 import { success,error } from "../utills/responseWrapper.utills.js";
-
+import CompletedChallenge from "../models/completedChallenge.js";
 export async function insertChallengeController(req,res){
     try{
         const user =req._id;
@@ -12,19 +12,11 @@ export async function insertChallengeController(req,res){
         if(!currUser){
             return  res.status(500).send({message:"User not found"});
         }
-        // const existingChallenge = await challengemodel.findOne({name})
-        // if(existingChallenge){
-        //     await challengemodel.deleteOne({name})
-        // }
 
         const activeChallenge = await challengemodel.findOne({user,status:"incomplete"})
         if(activeChallenge){
           return res.status(400).send(400,'You already have a active challenge.Complete it before starting New One' )
         }
-        // const existingChallenge = await challengemodel.findOne({name,status:"incomplete"});
-        // if(existingChallenge){
-        //   return res.send(error(400,'You already have a active challenge.Complete it before starting New One' ))
-        // }
 
         const challengeDetails = await createChallengeModel.findOne({name})
         if(!challengeDetails){
@@ -34,29 +26,27 @@ export async function insertChallengeController(req,res){
         return res.status(404).send(404, 'Challenge is not active')
     }
     
-    // const startTime = istTime
-    // const now = new Date()
-    // const utcOffset = 5.5 *60 * 60 * 1000;
-    //  const istTime = new Date(startTime.getTime() + utcOffset)
-
-    // //   const startTime = istTime;
-    //   const endTime = new Date(startTime.getTime() + challengeDetails.duration)
-
-    //   const challengeInfo = new challengemodel ({user,startTime: startTime,endTime,name})
-    //   const createdChallenge = await challengeInfo.save()
-
     const utcOffset = 5.5 * 60 * 60 * 1000;
         const startTime = new Date(Date.now() + utcOffset);
         const endTime = new Date(startTime.getTime() + challengeDetails.duration);
 
-        const challengeInfo = new challengemodel({ user, startTime: startTime, endTime, name });
+        const challengeInfo = new challengemodel({
+            user, 
+            startTime: startTime,
+            endTime,
+            name,
+            taskamount: challengeDetails.taskamount,
+            duration: challengeDetails.duration,
+            status: "incomplete",
+            referenceId:challengeDetails.referenceId
+            });
         const createdChallenge = await challengeInfo.save();
 
         if(!currUser.challenge){
             currUser.challenge = [];
         }
 
-      currUser.challenge.push(createdChallenge._id)
+      currUser.challenge.push({ challengeId: createdChallenge._id, referenceId: challengeDetails.referenceId});
       await currUser.save()
 
       const response = {
@@ -66,7 +56,8 @@ export async function insertChallengeController(req,res){
         status: createdChallenge.status,
         user: createdChallenge.user,
         duration:createdChallenge.duration,
-        taskamount:createdChallenge.taskamount
+        taskamount:createdChallenge.taskamount,
+        referenceId: challengeDetails.referenceId
     };
 
 
@@ -86,21 +77,35 @@ export async function updateChallengeController(req,res){
         }
         const challengeDetails = await createChallengeModel.findOne({name})
         console.log(challengeDetails)
-        const challengeInfo = await challengemodel.findOne({name})
+        const challengeInfo = await challengemodel.findOne({name,user})
+        if(!challengeInfo){
+            return res.status(404).send(404, 'Challenge Not Found')
+        }
+
+        const existingChallenge = await challengemodel.findOne({name,user})
+        if(!existingChallenge){
+            return res.status(404).send(404, 'No challenge found for this user')
+        }
         
-        
-    if (status === "complete"){
+    if (status === "complete" && challengeInfo.status === "complete"){
         
         currUser.INR += challengeDetails.rewards
-        currUser.challenges = currUser.challenges.filter(challengeId => challengeId.toString() !==challengeInfo._id.toString())
+        //currUser.challenges = currUser.challenges.filter(challengeId => challengeId.toString() !==challengeInfo._id.toString())
         await currUser.save()
+    
+   const completedChallenge = new CompletedChallenge({
+    user:user,
+    challenge:challengeInfo._id,
+    status:status,
+    referenceId:challengeInfo.referenceId
+   })
+   await completedChallenge.save()
     }
-    const challengeDelete = await challengemodel.findOneAndDelete({name,user});
-    if(!challengeInfo){
-      return res.status(404).send(404,"No challenge have been played by you");
-    }
-    challengeInfo.status = status
-    await challengeInfo.save()
+    existingChallenge.status = status
+    await existingChallenge.save();
+
+   await challengemodel.findOneAndDelete({name,user})
+  
     return res.send(success(200,"Challenge Completed successfully"))
     }catch(error){
         return res.status(500).send(500,error.message)
@@ -115,10 +120,6 @@ export async function getAllChallengeController(req,res){
         if (!currUser){
             return res.status(404).send(404,'User Does Not Exist');
         }
-        // const allChallenges = await challengemodel.find({user}).populate('user')
-        // if(!allChallenges){
-        //     return res.send(error(404,'User have Not played any challenge yet!'))
-        // }
 
         const completedChallenges = await challengemodel.find({user})
 
@@ -138,7 +139,8 @@ export async function getAllChallengeController(req,res){
             remainingTime: challenge.remainingTime,
             status: challenge.status,
             duration: challenge.duration,
-            taskamount:challenge.taskamount
+            taskamount:challenge.taskamount,
+            referenceId:challenge.referenceId
             
         };
     })
@@ -150,3 +152,18 @@ export async function getAllChallengeController(req,res){
         return res.status(500).send(500,err.message)
     }
 }
+
+export async function getCompletedChallengesController(req,res){
+    try {
+      const user = req._id
+  
+      const completedchallenges = await CompletedChallenge.find({user,status:'complete'}).populate('challenge')
+  
+      if(completedchallenges.length ===0){
+        return res.send(error(404,'No Completed Challenges Found',[]))
+      }
+      return res.send(success(200,'Completed Challenges',completedchallenges))
+    }catch (err){
+      return res.send(error(500,err.message));
+    }
+  }
