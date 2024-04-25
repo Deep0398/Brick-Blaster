@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticLoginController, facebookLoginController, getUnlockLevels, getUserController, getdetailController, guestLoginController, referAndEarnController,kycController,getCompletedChallengesController } from '../controllers/UserController.js';
+import { authenticLoginController, facebookLoginController, getUnlockLevels, getUserController, getdetailController, guestLoginController, referAndEarnController,kycController} from '../controllers/UserController.js';
 import { checkUserLogin } from '../middleware/middlewares.js';
 import upload from '../middleware/upload.js';
 import { updateBallController, updateCoinController, updateUserController } from '../controllers/UpdateController.js';
@@ -15,7 +15,7 @@ userRouter.post('/refer',checkUserLogin,referAndEarnController);
 userRouter.get("/unlockLevelCount",checkUserLogin,getUnlockLevels);
 userRouter.get('/updateUser',checkUserLogin,updateUserController);
 userRouter.get('/getdetails',getdetailController);
-userRouter.get('/getcompletedChallenge',checkUserLogin,getCompletedChallengesController)
+
 // userRouter.post('/kyc',checkUserLogin,upload.array('files'),kycController)
 userRouter.post(
     '/kyc',
