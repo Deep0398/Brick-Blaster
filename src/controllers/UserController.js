@@ -6,6 +6,7 @@ import { generateAccessToken } from "../services/generateAccessToken.service.js"
 import { error, success } from "../utills/responseWrapper.utills.js";
 import { generateUniqueReferralCode } from "../services/generateReferalCode.js";
 import kycModel from "../models/user.kyc.model.js";
+import WithDrawModel from "../models/user.withdraw.model.js";
 
  
 export async function guestLoginController(req, res) {
@@ -375,4 +376,62 @@ console.log(req.body)
 }catch(error){
     return res.status(500).send({message:"Internal Server Error"})
 }
+}
+
+export async function withdrawcontroller(req,res){
+    try {
+      const {userId,upi_Id,name,mobile_number,accountnumber,amount,IfscCode} = req.body
+      console.log(req.body)
+     if(!upi_Id && (!accountnumber || !IfscCode)){
+      return res.status(400).send({message:"Please provide any one mode of payment"})
+     }
+     if(!name || !mobile_number){
+      return res.status(400).send({message:"Please provide contact details"})
+     }
+     const user = await userModel.findById(userId);
+     if(!user){
+      return res.status(404).send({message:"User not found"})
+     }
+     if(user.kycstatus !==1){
+      return res.status(403).send({message:"Please Complete your KYC first"})
+     }
+     if(user.INR < amount){
+      return res.status(400).send({message:"Insuffiecent Funds"})
+     }
+     const mode = upi_Id ? "UPI" :"NEFT"
+  
+     const withdrawDetails = new WithDrawModel({user: userId,upi_Id,name,mobile_number,accountnumber,IfscCode,amount:parseFloat(amount),mode,status:"pending"})
+     await withdrawDetails.save()
+  
+     user.INR -= parseFloat(amount)
+     await user.save()
+  
+     res.status(201).json({ message: 'Withdrawal request received and pending admin approval' });
+    } catch (error) {
+        console.error('Error processing withdrawal:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+  }
+  export async function updateInrController(req,res){
+    try{
+        const userID = req._id;
+        const {inrIncrease} = req.body;
+
+        if(  !inrIncrease){
+            return res.send(error(400," Fill all the details"));
+        }  
+        const user = await userModel.findById(userID);
+        if(!user){
+            return res.send(error(404,"user not found"));
+        }
+        
+    user.INR += inrIncrease;
+    await user.save();
+
+    return res.send(success(200,{message:"INR updated Sucessfully"}));
+    } catch (err) {
+        return res.send(error(500,err.message));
+    
+   }
+
 }

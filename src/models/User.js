@@ -39,6 +39,7 @@ const commonSchema = mongoose.Schema({
         default:0,
         min:0
     },
+    kycstatus:{type:Number,default:0},
     ruby:{
         type: Number,
         default:0,
