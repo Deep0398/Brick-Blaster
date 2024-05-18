@@ -167,3 +167,18 @@ export async function getCompletedChallengesController(req,res){
       return res.send(error(500,err.message));
     }
   }
+
+  export async function getChallengeController(req,res){
+    try {
+        
+        const challengeDetails = await createChallengeModel.find({});
+        
+
+        if(! challengeDetails){
+            return res.send(error(404,"no challenge exit"))
+        }
+        return res.send(success(200, challengeDetails));
+    } catch (err) {
+        return res.send(error(500,err.message));
+    }
+}

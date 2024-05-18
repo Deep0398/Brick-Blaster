@@ -1,6 +1,7 @@
 import express from 'express';
 import { authenticLoginController, facebookLoginController, getUnlockLevels, getUserController, getdetailController, guestLoginController, updateInrController,referAndEarnController,kycController,withdrawcontroller} from '../controllers/UserController.js';
 import { checkUserLogin } from '../middleware/middlewares.js';
+import { getChallengeController } from '../controllers/user.challenge.controller.js';
 import upload from '../middleware/upload.js';
 import { updateBallController, updateCoinController, updateUserController } from '../controllers/UpdateController.js';
 const userRouter = express.Router();
@@ -17,6 +18,7 @@ userRouter.get('/updateUser',checkUserLogin,updateUserController);
 userRouter.get('/getdetails',getdetailController);
 userRouter.post('/withdraw',checkUserLogin,withdrawcontroller)
 userRouter.put('/updateINR',checkUserLogin,updateInrController)
+userRouter.get('/getChallenges',getChallengeController)
 
 // userRouter.post('/kyc',checkUserLogin,upload.array('files'),kycController)
 userRouter.post(

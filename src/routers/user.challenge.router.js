@@ -9,4 +9,5 @@ challengeRouter.get('/getChallenge',checkUserLogin,getAllChallengeController)
 challengeRouter.put('/updateChallenge', checkUserLogin,updateChallengeController)
 challengeRouter.get('/getcompletedChallenge',checkUserLogin,getCompletedChallengesController)
 
+
 export default challengeRouter;
