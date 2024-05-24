@@ -20,6 +20,9 @@ const completechallengeSchema = mongoose.Schema({
     },
     referenceId:{
         type:String
+    },
+    rewards:{
+        type: Number
     }
 })
 const CompletedChallenge = mongoose.model('completedChallenge',completechallengeSchema)

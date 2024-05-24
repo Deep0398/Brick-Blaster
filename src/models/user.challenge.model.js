@@ -36,6 +36,9 @@ const challengeSchema = mongoose.Schema({
     duration:{
         type:Number,
         default:0
+    },
+    rewards:{
+        type:Number
     }
 },{timestamps:true})
 const challengemodel =mongoose.model('challenge',challengeSchema)

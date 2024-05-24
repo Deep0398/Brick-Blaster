@@ -36,6 +36,7 @@ export async function insertChallengeController(req,res){
             endTime,
             name,
             taskamount: challengeDetails.taskamount,
+            rewards: challengeDetails.rewards,
             duration: challengeDetails.duration,
             status: "incomplete",
             referenceId:challengeDetails.referenceId
@@ -138,6 +139,7 @@ export async function getAllChallengeController(req,res){
             startTime: challenge.startTime,
             remainingTime: challenge.remainingTime,
             status: challenge.status,
+            rewards: challenge.rewards,
             duration: challenge.duration,
             taskamount:challenge.taskamount,
             referenceId:challenge.referenceId
