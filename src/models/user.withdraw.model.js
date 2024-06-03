@@ -30,7 +30,7 @@ type:String
     },
 status: {
   type: String,
-  enum: ['pending', 'completed', 'cancelled'],
+  enum: ['pending', 'approved', 'rejected'],
   default:'pending'
 },
 },{timestamps:true}

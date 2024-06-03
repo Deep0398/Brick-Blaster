@@ -6,6 +6,7 @@ import { error, success } from "../utills/responseWrapper.utills.js";
 import createChallengeModel from "../models/admin.challenge.model.js"
 import kycModel from "../models/user.kyc.model.js";
 import { generateUniqueReferenceId } from "../services/generateRefrenceID.js";
+import WithDrawModel from "../models/user.withdraw.model.js";
 
 
 export async function adminSignupController(req,res){
@@ -205,3 +206,62 @@ export async function updateKycStatusContoller(req,res){
         return res.send(500,error.message)
     }
 }
+
+export async function getAllWithdrawRequest(req,res){
+    try {
+        const withdrawRequests = await WithDrawModel.find().populate('user', 'userId,upi_Id,name,mobile_number,accountnumber,IfscCode,amount:parseFloat(amount),mode,status:"pending" '); // Adjust the populate fields as necessary
+        res.status(200).json(withdrawRequests);
+    } catch (error) {
+        console.error('Error retrieving withdrawal requests:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+    }
+
+    export async function getWithdrawRequestsByUserId(req, res) {
+        try {
+            const { userId } = req.params;
+            const withdrawRequests = await WithDrawModel.find({ user: userId }).populate('user', 'userId,upi_Id,name,mobile_number,accountnumber,IfscCode,amount:parseFloat(amount),mode,status:"pending" ');
+            if (withdrawRequests.length === 0) {
+                return res.status(404).json({ message: 'No withdrawal requests found for this user' });
+            }
+            res.status(200).json(withdrawRequests);
+        } catch (error) {
+            console.error('Error retrieving withdrawal requests by user ID:', error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    export async function updateWithdrawRequestStatus(req, res) {
+        try {
+            const { requestId } = req.params;
+            const { status } = req.body;
+
+            if (!['approved', 'rejected'].includes(status)) {
+                return res.status(400).json({ message: "Invalid status. Status must be 'approved' or 'rejected'." });
+            }
+    
+            const withdrawRequest = await WithDrawModel.findById(requestId);
+            if (!withdrawRequest) {
+                return res.status(404).json({ message: "Withdrawal request not found" });
+            }
+    
+            withdrawRequest.status = status;
+            await withdrawRequest.save();
+    
+            // If the status is 'rejected', re-deposit the amount into user's INR balance
+            if (status === 'rejected') {
+                const user = await userModel.findById(withdrawRequest.user);
+                if (!user) {
+                    return res.status(404).json({ message: "User not found" });
+                }
+                user.INR += withdrawRequest.amount;
+                await user.save();
+            }
+    
+            res.status(200).json({ message: `Withdrawal request ${status} successfully` });
+        } catch (error) {
+            console.error('Error updating withdrawal request status:', error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+    

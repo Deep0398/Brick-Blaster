@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { adminLoginController, adminSignupController, deleteAllUsers, getAllUsersController,createChallengeController,updateChallengeController,deleteChallengeController,getKycController,updateKycStatusContoller} from '../controllers/AdminController.js';
+import { adminLoginController, adminSignupController,updateWithdrawRequestStatus, deleteAllUsers,getWithdrawRequestsByUserId, getAllUsersController,createChallengeController,updateChallengeController,deleteChallengeController,getKycController,updateKycStatusContoller,getAllWithdrawRequest} from '../controllers/AdminController.js';
 import { checkAdminLogin } from '../middleware/middlewares.js';
 
 
@@ -15,4 +15,7 @@ adminRouter.put('/updateChallenge/:id',checkAdminLogin,updateChallengeController
 adminRouter.delete('/deleteChallenge/:id',checkAdminLogin,deleteChallengeController);
 adminRouter.get('/getkyclist',checkAdminLogin,getKycController)
 adminRouter.put('/updatekycstatus/:id',checkAdminLogin,updateKycStatusContoller)
+adminRouter.get('/getallwithdrawrequest',checkAdminLogin,getAllWithdrawRequest)
+adminRouter.get('/getwithdrawrequestbyUser/:userId',checkAdminLogin,getWithdrawRequestsByUserId)
+adminRouter.patch('/withdraw-requests/:requestId',checkAdminLogin,updateWithdrawRequestStatus)
 export default adminRouter;
