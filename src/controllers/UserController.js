@@ -339,6 +339,14 @@ export async function kycController (req,res){
          if(!user){
             return res.send(error(404,"User Not Found"))
          }
+         const userINRBalance = await getUserINRBalance(user);
+        const minimumINRBalance = 50; // Minimum INR balance required for KYC completion
+
+        if (userINRBalance < minimumINRBalance) {
+            return res.status(400).send({
+                message: "Dear User! Minimum 50 Rs. Earning required for KYC completion"
+            });
+        }
     const {firstName,lastName,adharNumber,panNumber} = req.body ;
 console.log(req.body)
     if( !firstName || !lastName || !adharNumber || !panNumber  ){
@@ -434,4 +442,15 @@ export async function withdrawcontroller(req,res){
     
    }
 
+}
+async function getUserINRBalance(userId) {
+    try {
+        const user = await userModel.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+        return user.INR; // Return the INR amount directly
+    } catch (error) {
+        throw error;
+    }
 }
