@@ -25,7 +25,7 @@ const createChallengeSchema = mongoose.Schema({
     challengetype:{
         type:String,
         required:true,
-        enum: ['level', 'coin', 'star', 'colorball', 'fireball', 'fiveball', 'switchball', 'doublescore', 'pot', 'greenball', 'redball', 'blueball', 'yellowball', 'violetball']
+        enum: ['ball','level','ballShoot','coinSpend','coin','star','brick ','brickOneByOne','maxBrickDestroy']
     },
     taskamount:{
         type: Number,
