@@ -97,7 +97,7 @@ export async function createChallengeController(req,res){
 
     return res.send(success(200,savedChallenge,"challenge created successfully",savedChallenge))
 }catch (error){
-    return res.send(500,err.message)
+    return res.status(500).send(err.message)
 }
 }
 
