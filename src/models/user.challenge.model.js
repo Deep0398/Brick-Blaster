@@ -29,6 +29,10 @@ const challengeSchema = mongoose.Schema({
         ref: 'user',
      
     },
+    challengetype:{
+        type:String
+    },
+
     taskamount:{
         type:Number,
         default:0
