@@ -26,33 +26,33 @@ export async function adminSignupController(req,res){
 
 }
 export async function adminLoginController(req,res){
-  try {
-    
-    const {username,password} = req.body;
-    const user = await adminModel.findOne({
-        $or:[{username:username}, {password:password}]
-    });
-    if(!user){
-        return res.send(error(404,"user not found"));
+    try {
+
+        const {usernameOrEmail,password} = req.body;
+        const user = await adminModel.findOne({
+            $or:[{username:usernameOrEmail}, {email:usernameOrEmail}]
+        }); 
+        if(!user){
+            return res.status(404).json({message:"user not found"});
+        }
+
+        const matched = await bcrypt.compare(password,user.password);
+        if(!matched){
+            return res.send({message:"incorrect password"});
+        }
+
+        const accessToken = generateAccessToken({...user})
+        // const {_id,password,newuser} = user;
+        delete user['_doc']['password'];
+        delete user['_doc']['__v'];
+        delete user._doc['_id'];
+        // console.log(user);
+
+        return res.send({...user._doc,"accessToken":accessToken});
+        
+    } catch (error) {
+        return res.json({"error":error.message});
     }
-
-    const matched = await bcrypt.compare(password,user.password);
-    if(!matched){
-        return res.send(error(401,"Anuthorized access"));
-    }
-
-    const accessToken = generateAccessToken({...user})
-    
-   
-   
-
-    return res.send(success(200,accessToken));
-    
-} catch (err) {
-    return res.send(500,err.message);
-}
-
-
 }
 
 export async function getAllUsersController(req,res){
