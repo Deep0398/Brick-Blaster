@@ -383,7 +383,7 @@ console.log(req.body)
          status:0
     })
     await kycDetails.save();
-    console.log(kycDetails)
+   
 
     const userDetails = await userModel.findById(userId);
     if (userDetails) {
@@ -401,7 +401,7 @@ console.log(req.body)
 export async function withdrawcontroller(req,res){
     try {
       const {userId,upi_Id,name,mobile_number,accountnumber,amount,IfscCode} = req.body
-      console.log(req.body)
+      
      if(!upi_Id && (!accountnumber || !IfscCode)){
       return res.status(400).send({message:"Please provide any one mode of payment"})
      }

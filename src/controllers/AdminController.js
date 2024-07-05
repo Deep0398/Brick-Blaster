@@ -174,6 +174,7 @@ export async function getKycController(req,res){
         }
         const kycList = await kycModel.find({}).lean();
         const baseURL = process.env.BASE_URL;
+        console.log(kycList)
     
         if (!baseURL) {
             console.error("BASE_URL is not defined in environment variables");
@@ -256,7 +257,7 @@ export async function updateKycStatusContoller(req,res){
             message = "KYC status updated successfully";
         }
 
-        console.log(message);
+        
         return res.status(200).json({ message });
 
     } catch (err) {
@@ -274,6 +275,7 @@ export async function getAllWithdrawRequest(req,res){
         if (!adminDetail) {
             return res.status(404).json({ message: "Unauthorized access" });
         }
+        console.log(adminDetail)
 
         const withdrawRequests = await WithDrawModel.find()
             .populate('user', 'name email'); // Adjust the populated fields as necessary
