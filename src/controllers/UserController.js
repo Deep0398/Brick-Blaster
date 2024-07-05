@@ -335,17 +335,21 @@ export async function getdetailController(req, res) {
 
 export async function kycController (req,res){
     try{
-         const user  = req._id
-         if(!user){
+         const userId  = req._id
+         if(!userId){
             return res.send(error(404,"User Not Found"))
          }
-         const userINRBalance = await getUserINRBalance(user);
+         const userINRBalance = await getUserINRBalance(userId);
         const minimumINRBalance = 50; // Minimum INR balance required for KYC completion
 
         if (userINRBalance < minimumINRBalance) {
             return res.status(400).send({
                 message: "Dear User! Minimum 50 Rs. Earning required for KYC completion"
             });
+        }
+        const existingKYC = await kycModel.findOne({ user: userId });
+        if (existingKYC) {
+            await kycModel.findByIdAndDelete(existingKYC._id);
         }
     const {firstName,lastName,adharNumber,panNumber} = req.body ;
 console.log(req.body)
@@ -375,13 +379,21 @@ console.log(req.body)
          adharFront : adharFrontPath,
        adharBack : adharBackPath,
         panFront : panFrontPath,
-         user
+         user: userId,
+         status:0
     })
     await kycDetails.save();
     console.log(kycDetails)
 
-    return res.send(success(200,"Player KYC completed"))
+    const userDetails = await userModel.findById(userId);
+    if (userDetails) {
+        userDetails.kycstatus = 0;
+        await userDetails.save();
+    }
+
+    return res.send(success(200,"KYC details saved successfully"))
 }catch(error){
+    console.log(error)
     return res.status(500).send({message:"Internal Server Error"})
 }
 }

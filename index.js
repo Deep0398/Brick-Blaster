@@ -11,6 +11,8 @@ import adminRouter from "./src/routers/AdminRouter.js";
 import versionRouter from "./src/routers/versionRouter.js";
 import challengeRouter from "./src/routers/user.challenge.router.js";
 import progressamountRouter from "./src/routers/progressamount.router.js";
+import path from 'path'
+import { fileURLToPath } from 'url';
 //import { generateUniqueReferralCode } from "./src/services/generateReferalCode.js";
 
 
@@ -24,7 +26,13 @@ dotenv.config();
 connectDB();
 app.use(morgan("common"));
 app.use(cors());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use('/public/images', express.static(path.join(__dirname, 'public/images')));
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(session({resave: false,saveUninitialized: true,secret: 'SECRET'}));
 
 

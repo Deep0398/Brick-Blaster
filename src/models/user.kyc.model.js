@@ -31,11 +31,11 @@ const kycSchema = mongoose.Schema({
         required:true
     },
 
-   status :{
-    type:Number,
-    required:false,
-    default:0
-   },
+    status:{
+        type:Number,
+        enum: [0, 1, 2], // 0: Pending, 1: Approved, 2: Rejected
+        default: 0
+    },
    user : {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',

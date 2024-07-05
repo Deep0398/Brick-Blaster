@@ -14,7 +14,7 @@ adminRouter.post('/createChallenge',checkAdminLogin,createChallengeController);
 adminRouter.put('/updateChallenge/:id',checkAdminLogin,updateChallengeController);
 adminRouter.delete('/deleteChallenge/:id',checkAdminLogin,deleteChallengeController);
 adminRouter.get('/getkyclist',checkAdminLogin,getKycController)
-adminRouter.put('/updatekycstatus/:id',checkAdminLogin,updateKycStatusContoller)
+adminRouter.put('/updatekycstatus/:userId',checkAdminLogin,updateKycStatusContoller)
 adminRouter.get('/getallwithdrawrequest',checkAdminLogin,getAllWithdrawRequest)
 adminRouter.get('/getwithdrawrequestbyUser/:userId',checkAdminLogin,getWithdrawRequestsByUserId)
 adminRouter.patch('/withdraw-requests/:requestId',checkAdminLogin,updateWithdrawRequestStatus)

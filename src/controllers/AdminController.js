@@ -7,7 +7,7 @@ import createChallengeModel from "../models/admin.challenge.model.js"
 import kycModel from "../models/user.kyc.model.js";
 import { generateUniqueReferenceId } from "../services/generateRefrenceID.js";
 import WithDrawModel from "../models/user.withdraw.model.js";
-
+import urlJoin from "url-join";
 
 export async function adminSignupController(req,res){
     try {
@@ -27,7 +27,6 @@ export async function adminSignupController(req,res){
 }
 export async function adminLoginController(req,res){
     try {
-
         const {usernameOrEmail,password} = req.body;
         const user = await adminModel.findOne({
             $or:[{username:usernameOrEmail}, {email:usernameOrEmail}]
@@ -173,14 +172,41 @@ export async function getKycController(req,res){
         if(!adminDetail){
             return res.send(error(404,"Admin not found"))
         }
-        const kycList = await kycModel.find({})
-
-        return res.send(success(200,kycList,"KYC list Fetched Successfully"))
-    }catch(error){
-        return res.send(500,error.message)
+        const kycList = await kycModel.find({}).lean();
+        const baseURL = process.env.BASE_URL;
+    
+        if (!baseURL) {
+            console.error("BASE_URL is not defined in environment variables");
+            return res.status(500).json({ message: "Server configuration error" });
+        }
+    
+        const formattedKycList = kycList.map(kyc => {
+            if (kyc.adharFront) console.log("AdharFront:", kyc.adharFront);
+            if (kyc.adharBack) console.log("AdharBack:", kyc.adharBack);
+            if (kyc.panFront) console.log("PanFront:", kyc.panFront);
+    
+            return {
+                _id: kyc._id,
+                user:kyc.user,
+                firstName: kyc.firstName,
+                lastName: kyc.lastName,
+                adharNumber:kyc.adharNumber,
+                panNumber:kyc.panNumber,
+                adharFront: kyc.adharFront ? urlJoin(baseURL, kyc.adharFront.replace(/\\/g, '/')) : null,
+                adharBack: kyc.adharBack ? urlJoin(baseURL, kyc.adharBack.replace(/\\/g, '/')) : null,
+                panFront: kyc.panFront ? urlJoin(baseURL, kyc.panFront.replace(/\\/g, '/')) : null,
+                status: kyc.status,
+                createdAt: kyc.createdAt,
+                updatedAt: kyc.updatedAt
+            };
+        });
+    
+        return res.status(200).json({ message: "KYC list fetched successfully", data: formattedKycList });
+    } catch (err) {
+        console.error("Error in getKycListController:", err);
+        return res.status(500).json({ message: err.message });
     }
-
-}
+    }
 
 export async function updateKycStatusContoller(req,res){
     try{
@@ -190,33 +216,74 @@ export async function updateKycStatusContoller(req,res){
             return res.send(error(404,"Admin not found"))
         }
         const {status} = req.body
-        const userId = req.params.id
-        const userDetails = await userModel.findByIdAndUpdate(userId,{$set: {kycstatus :status}})
+        const { userId } = req.params;
+        console.log("User ID from params:", userId);
+        console.log("Status from body:", status);
 
-        if (!userDetails){
-            return res.send(error(404,"User Not Found"))
+        if (!status || !userId) {
+            console.log("Missing status or user ID");
+            return res.status(400).json({ message: "Missing status or user ID" });
         }
-        const kycDetails = await kycModel.findOne({user:userId})
-        kycDetails.status = status
-        await kycDetails.save()
 
+        const userDetails = await userModel.findById(userId);
+        console.log("User Details:", userDetails);
 
-        return res.send(success(200,"KYC status updated successfully"))
-    }catch(error){
-        return res.send(500,error.message)
+        if (!userDetails) {
+            console.log("User not found");
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        userDetails.kycstatus = status;
+        await userDetails.save();
+
+        const kycDetails = await kycModel.findOne({ user: userId });
+        console.log("KYC Details:", kycDetails);
+
+        if (!kycDetails) {
+            console.log("KYC details not found for this user");
+            return res.status(404).json({ message: "KYC details not found for this user" });
+        }
+
+        kycDetails.status = status;
+        await kycDetails.save();
+
+        let message ;
+        if (status === 1) {
+            message = "KYC request approved successfully";
+        } else if (status === 2) {
+            message = "KYC request rejected";
+        } else {
+            message = "KYC status updated successfully";
+        }
+
+        console.log(message);
+        return res.status(200).json({ message });
+
+    } catch (err) {
+        console.error("Error in updateKycStatusController:", err);
+        return res.status(500).json({ message: err.message });
     }
 }
 
+
 export async function getAllWithdrawRequest(req,res){
     try {
-        const withdrawRequests = await WithDrawModel.find().populate('user', 'userId,upi_Id,name,mobile_number,accountnumber,IfscCode,amount:parseFloat(amount),mode,status:"pending" '); // Adjust the populate fields as necessary
+        const adminId = req._id;
+        const adminDetail = await adminModel.findById(adminId);
+
+        if (!adminDetail) {
+            return res.status(404).json({ message: "Unauthorized access" });
+        }
+
+        const withdrawRequests = await WithDrawModel.find()
+            .populate('user', 'name email'); // Adjust the populated fields as necessary
+
         res.status(200).json(withdrawRequests);
     } catch (error) {
         console.error('Error retrieving withdrawal requests:', error.message);
         res.status(500).json({ error: error.message });
     }
-    }
-
+}
     export async function getWithdrawRequestsByUserId(req, res) {
         try {
             const { userId } = req.params;
