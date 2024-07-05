@@ -174,7 +174,7 @@ export async function getKycController(req,res){
         }
         const kycList = await kycModel.find({}).lean();
         const baseURL = process.env.BASE_URL;
-        console.log(kycList)
+        
     
         if (!baseURL) {
             console.error("BASE_URL is not defined in environment variables");

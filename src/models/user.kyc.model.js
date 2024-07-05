@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 const kycSchema = mongoose.Schema({
     firstName:{
         type:String,
-        required:true
        
     },
     lastName :{
