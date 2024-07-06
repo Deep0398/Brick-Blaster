@@ -6,7 +6,7 @@ const storage = multer.diskStorage({
         const fileType = file.mimetype.split('/')[0]
 
         if (fileType === 'image'){
-            cb(null,'Public/images/')
+            cb(null,'public/images/')
         }
         else {
         cb(new Error("Invalid File Type"))
