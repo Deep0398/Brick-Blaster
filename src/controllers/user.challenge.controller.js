@@ -71,47 +71,47 @@ export async function insertChallengeController(req,res){
 }
 
 export async function updateChallengeController(req,res){
-    try{
+    try {
         const user = req._id;
-        const {name,status} = req.body;
-        const currUser = await userModel.findById(user)
-        if(!currUser){
-            return res.status(404).send(404,'User not Found')
-        }
-        const challengeDetails = await createChallengeModel.findOne({name})
-        console.log(challengeDetails)
-        const challengeInfo = await challengemodel.findOne({name,user})
-        if(!challengeInfo){
-            return res.status(404).send(404, 'Challenge Not Found')
+        const { name, status } = req.body;
+        const currUser = await userModel.findById(user);
+        if (!currUser) {
+            return res.status(404).send('User not Found');
         }
 
-        const existingChallenge = await challengemodel.findOne({name,user})
-        if(!existingChallenge){
-            return res.status(404).send(404, 'No challenge found for this user')
+        const challengeInfo = await challengemodel.findOne({ name, user });
+        if (!challengeInfo) {
+            return res.status(404).send('Challenge Not Found');
         }
-        
-    if (status === "complete" && challengeInfo.status === "complete"){
-        
-        currUser.INR += challengeDetails.rewards
-        //currUser.challenges = currUser.challenges.filter(challengeId => challengeId.toString() !==challengeInfo._id.toString())
-        await currUser.save()
-    
-   const completedChallenge = new CompletedChallenge({
-    user:user,
-    challenge:challengeInfo._id,
-    status:status,
-    referenceId:challengeInfo.referenceId
-   })
-   await completedChallenge.save()
-    }
-    existingChallenge.status = status
-    await existingChallenge.save();
 
-   await challengemodel.findOneAndDelete({name,user})
-  
-    return res.send(success(200,"Challenge Completed successfully"))
-    }catch(error){
-        return res.status(500).send(500,error.message)
+        if (status === "complete" && challengeInfo.status !== "complete") {
+            currUser.INR += challengeInfo.rewards;
+            await currUser.save();
+
+            const completedChallenge = new CompletedChallenge({
+                user: user,
+                challenge: challengeInfo._id,
+                status: status,
+                referenceId: challengeInfo.referenceId,
+                rewards: challengeInfo.rewards,
+                completedAt: new Date()
+            });
+            await completedChallenge.save();
+
+            console.log('Completed Challenge:', completedChallenge);
+
+            challengeInfo.status = status;
+            await challengeInfo.save();
+
+            await challengemodel.findOneAndDelete({ _id: challengeInfo._id });
+        } else {
+            challengeInfo.status = status;
+            await challengeInfo.save();
+        }
+
+        return res.send({ success: true, message: "Challenge Completed successfully" });
+    } catch (error) {
+        return res.status(500).send(error.message);
     }
 }
 
@@ -160,18 +160,25 @@ export async function getAllChallengeController(req,res){
 
 export async function getCompletedChallengesController(req,res){
     try {
-      const user = req._id
-  
-      const completedchallenges = await CompletedChallenge.find({user,status:'complete'}).populate('challenge')
-  
-      if(completedchallenges.length ===0){
-        return res.send(error(404,'No Completed Challenges Found',[]))
-      }
-      return res.send(success(200,'Completed Challenges',completedchallenges))
-    }catch (err){
-      return res.send(error(500,err.message));
+        const user = req._id;
+
+        // Find completed challenges and populate the challenge field
+        const completedChallenges = await CompletedChallenge.find({ user, status: 'complete' }).populate('challenge');
+
+        if (completedChallenges.length === 0) {
+            return res.status(404).send({ message: 'No Completed Challenges Found', data: [] });
+        }
+
+        // Map to extract only the referenceId
+        const response = completedChallenges.map(challenge => ({
+            referenceId: challenge.referenceId
+        }));
+
+        return res.status(200).send({ message: 'Completed Challenges', data: response });
+    } catch (err) {
+        return res.status(500).send({ message: err.message });
     }
-  }
+}
 
   export async function getChallengeController(req,res){
     try {
