@@ -93,13 +93,12 @@ io.on('connection', (socket) => {
             level_id
         });
 
-        console.log(`Challenge initiated from ${username_1} to ${username_2} for level ${level_id}`);
+        console.log(`Challenge initiated from ${username_1} to ${username_2} for level ${level_id}, challengeId: ${challengeId}`);
     });
 
     // Handle challenge acceptance
     socket.on('acceptChallenge', ({ challengeId }) => {
         console.log(`acceptChallenge event received for challengeId: ${challengeId}`);
-
         if (challenges[challengeId]) {
             challenges[challengeId].challenge_status = 'in_progress';
             io.emit('challengeAccepted', {
@@ -108,45 +107,13 @@ io.on('connection', (socket) => {
             });
             console.log(`Challenge ${challengeId} accepted.`);
         } else {
-            console.error(`No challenge found with ID: ${challengeId}`);
-        }
-    });
-
-    // Handle score submission
-    socket.on('submitScore', ({ facebook_id, challengeId, score }) => {
-        console.log(`submitScore event received for challengeId: ${challengeId}, facebook_id: ${facebook_id}, score: ${score}`);
-
-        if (challenges[challengeId] && challenges[challengeId].challenge_status === 'in_progress') {
-            challenges[challengeId].scores[facebook_id] = score;
-
-            // Check if both players have submitted their scores
-            if (Object.keys(challenges[challengeId].scores).length === 2) {
-                const { facebook_id_1, score_1, facebook_id_2, score_2 } = compareScores(challenges[challengeId]);
-                const winner = score_1 > score_2 ? facebook_id_1 : facebook_id_2;
-
-                // Notify both users about the challenge result
-                io.to(facebook_id_1).emit('challengeCompleted', {
-                    challengeId,
-                    winner,
-                });
-                io.to(facebook_id_2).emit('challengeCompleted', {
-                    challengeId,
-                    winner,
-                });
-
-                challenges[challengeId].challenge_status = 'completed';
-                challenges[challengeId].winner = winner;
-                console.log(`Challenge ${challengeId} completed. Winner: ${winner}`);
-            }
-        } else {
-            console.error(`No in-progress challenge found with ID: ${challengeId}`);
+            console.log(`No challenge found with ID: ${challengeId}`);
         }
     });
 
     // Handle challenge rejection
     socket.on('rejectChallenge', ({ challengeId }) => {
         console.log(`rejectChallenge event received for challengeId: ${challengeId}`);
-
         if (challenges[challengeId] && challenges[challengeId].challenge_status === 'pending') {
             challenges[challengeId].challenge_status = 'rejected';
 
@@ -156,7 +123,7 @@ io.on('connection', (socket) => {
 
             console.log(`Challenge ${challengeId} rejected.`);
         } else {
-            console.error(`No pending challenge found with ID: ${challengeId}`);
+            console.log(`No challenge found or challenge not pending for ID: ${challengeId}`);
         }
     });
 
