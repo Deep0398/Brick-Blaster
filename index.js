@@ -98,18 +98,24 @@ io.on('connection', (socket) => {
 
     // Handle challenge acceptance
     socket.on('acceptChallenge', ({ challengeId }) => {
+        console.log(`acceptChallenge event received for challengeId: ${challengeId}`);
+
         if (challenges[challengeId]) {
             challenges[challengeId].challenge_status = 'in_progress';
             io.emit('challengeAccepted', {
                 challengeId,
                 status: 'in_progress'
             });
-            console.log(`Challenge ${challengeId} rejected.`);
+            console.log(`Challenge ${challengeId} accepted.`);
+        } else {
+            console.error(`No challenge found with ID: ${challengeId}`);
         }
     });
 
     // Handle score submission
     socket.on('submitScore', ({ facebook_id, challengeId, score }) => {
+        console.log(`submitScore event received for challengeId: ${challengeId}, facebook_id: ${facebook_id}, score: ${score}`);
+
         if (challenges[challengeId] && challenges[challengeId].challenge_status === 'in_progress') {
             challenges[challengeId].scores[facebook_id] = score;
 
@@ -132,11 +138,15 @@ io.on('connection', (socket) => {
                 challenges[challengeId].winner = winner;
                 console.log(`Challenge ${challengeId} completed. Winner: ${winner}`);
             }
+        } else {
+            console.error(`No in-progress challenge found with ID: ${challengeId}`);
         }
     });
 
     // Handle challenge rejection
     socket.on('rejectChallenge', ({ challengeId }) => {
+        console.log(`rejectChallenge event received for challengeId: ${challengeId}`);
+
         if (challenges[challengeId] && challenges[challengeId].challenge_status === 'pending') {
             challenges[challengeId].challenge_status = 'rejected';
 
@@ -145,6 +155,8 @@ io.on('connection', (socket) => {
             io.to(challenges[challengeId].facebook_id_2).emit('challengeRejected', { challengeId });
 
             console.log(`Challenge ${challengeId} rejected.`);
+        } else {
+            console.error(`No pending challenge found with ID: ${challengeId}`);
         }
     });
 
@@ -153,7 +165,6 @@ io.on('connection', (socket) => {
         console.log(`User disconnected: ${socket.id}`);
     });
 });
-
 // Start server
 const port = process.env.PORT || 3000;
 server.listen(port, '0.0.0.0', () => {
