@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 import session  from 'express-session';
 import morgan from "morgan";
 import cors from "cors";
@@ -104,6 +104,7 @@ io.on('connection', (socket) => {
                 challengeId,
                 status: 'in_progress'
             });
+            console.log(`Challenge ${challengeId} rejected.`);
         }
     });
 
