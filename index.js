@@ -86,12 +86,12 @@ io.on('connection', (socket) => {
             scores: {}
         };
 
-        // // Notify the second user about the challenge
-        // io.to(facebook_id_2).emit('receiveChallenge', {
-        //     challengeId,
-        //     from: username_1,
-        //     level_id
-        // });
+        // Notify the second user about the challenge
+        io.emit('receiveChallenge', {
+            challengeId,
+            from: username_1,
+            level_id
+        });
 
         console.log(`Challenge initiated from ${username_1} to ${username_2} for level ${level_id}, challengeId: ${challengeId}`);
     });
