@@ -135,10 +135,7 @@ io.on('connection', (socket) => {
                     }
     
                     // Notify both users about the challenge result
-                    io.emit('challengeCompleted', {
-                        challengeId,
-                        winner,
-                    });
+                    
                     io.emit('challengeCompleted', {
                         challengeId,
                         winner,
