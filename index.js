@@ -90,6 +90,9 @@ io.on('connection', (socket) => {
         io.emit('receiveChallenge', {
             challengeId,
             from: username_1,
+            to: username_2,
+            FaceBookID1:  facebook_id_1,
+            FaceBookID2:facebook_id_2,
             level_id
         });
 
