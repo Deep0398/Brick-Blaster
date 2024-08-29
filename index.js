@@ -135,11 +135,11 @@ io.on('connection', (socket) => {
                     }
     
                     // Notify both users about the challenge result
-                    io.to(facebook_id_1).emit('challengeCompleted', {
+                    io.emit('challengeCompleted', {
                         challengeId,
                         winner,
                     });
-                    io.to(facebook_id_2).emit('challengeCompleted', {
+                    io.emit('challengeCompleted', {
                         challengeId,
                         winner,
                     });
@@ -161,8 +161,8 @@ io.on('connection', (socket) => {
             challenges[challengeId].challenge_status = 'rejected';
 
             // Notify both users about the rejection
-            io.to(challenges[challengeId].facebook_id_1).emit('challengeRejected', { challengeId });
-            io.to(challenges[challengeId].facebook_id_2).emit('challengeRejected', { challengeId });
+            io.emit('challengeRejected', { challengeId });
+            // io.to(challenges[challengeId].facebook_id_2).emit('challengeRejected', { challengeId });
 
             console.log(`Challenge ${challengeId} rejected.`);
         } else {
