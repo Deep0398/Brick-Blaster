@@ -103,6 +103,7 @@ io.on('connection', (socket) => {
     socket.on('acceptChallenge', ({ challengeId }) => {
         console.log(`acceptChallenge event received for challengeId: ${challengeId}`);
         if (challenges[challengeId]) {
+            console.log(`Challenge found with ID: ${challengeId}`);
             challenges[challengeId].challenge_status = 'in_progress';
             io.emit('challengeAccepted', {
                 challengeId,
