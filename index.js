@@ -100,8 +100,10 @@ io.on('connection', (socket) => {
     });
 
     // Handle challenge acceptance
-    socket.on('acceptChallenge', ({ challengeId }) => {
-        console.log(`acceptChallenge event received for challengeId: ${challengeId}`);
+    socket.on('acceptChallenge', (data) => {
+        const { challengeId } = data; // Ensure proper destructuring
+        console.log(`Received acceptChallenge event for challengeId: ${challengeId}`);
+        
         if (challenges[challengeId]) {
             console.log(`Challenge found with ID: ${challengeId}`);
             challenges[challengeId].challenge_status = 'in_progress';
@@ -109,11 +111,11 @@ io.on('connection', (socket) => {
                 challengeId,
                 status: 'in_progress'
             });
-            console.log(`Challenge ${challengeId} accepted.`);
         } else {
             console.log(`No challenge found with ID: ${challengeId}`);
         }
     });
+
 
         // Handle score submission
         socket.on('submitScore', ({ facebook_id, challengeId, score }) => {
