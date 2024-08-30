@@ -74,8 +74,8 @@ io.on('connection', (socket) => {
 
     // Handle challenge initiation
     socket.on('initiateChallenge', ({ facebook_id_1, username_1, facebook_id_2, username_2, level_id }) => {
-        const challengeId = `${facebook_id_1}_${facebook_id_2}_${level_id}`;
-        
+        const challengeId = `${facebook_id_1}_${facebook_id_2}_${level_id}`.trim(); // Ensure the challengeId is trimmed
+
         challenges[challengeId] = {
             facebook_id_1,
             username_1,
@@ -92,7 +92,7 @@ io.on('connection', (socket) => {
             from: username_1,
             to: username_2,
             FaceBookID1:  facebook_id_1,
-            FaceBookID2:facebook_id_2,
+            FaceBookID2: facebook_id_2,
             level_id
         });
 
@@ -100,79 +100,76 @@ io.on('connection', (socket) => {
     });
 
     // Handle challenge acceptance
-    socket.on('acceptChallenge', (data) => {
-        const { challengeId } = data; // Ensure proper destructuring
-        console.log(`Received acceptChallenge event for challengeId: ${challengeId}`);
+    socket.on('acceptChallenge', ({ challengeId }) => {
+        const trimmedChallengeId = challengeId.trim(); // Trim the challengeId to avoid any extra spaces or newlines
+        console.log(`acceptChallenge event received for challengeId: ${trimmedChallengeId}`);
         
-        if (challenges[challengeId]) {
-            console.log(`Challenge found with ID: ${challengeId}`);
-            challenges[challengeId].challenge_status = 'in_progress';
+        if (challenges[trimmedChallengeId]) {
+            challenges[trimmedChallengeId].challenge_status = 'in_progress';
             io.emit('challengeAccepted', {
-                challengeId,
+                challengeId: trimmedChallengeId,
                 status: 'in_progress'
             });
+            console.log(`Challenge ${trimmedChallengeId} accepted.`);
         } else {
-            console.log(`No challenge found with ID: ${challengeId}`);
+            console.log(`No challenge found with ID: ${trimmedChallengeId}`);
         }
     });
 
-
-        // Handle score submission
-        socket.on('submitScore', ({ facebook_id, challengeId, score }) => {
-            console.log(`submitScore event received for challengeId: ${challengeId}, facebook_id: ${facebook_id}, score: ${score}`);
+    // Handle score submission
+    socket.on('submitScore', ({ facebook_id, challengeId, score }) => {
+        const trimmedChallengeId = challengeId.trim(); // Ensure the challengeId is trimmed
+        console.log(`submitScore event received for challengeId: ${trimmedChallengeId}, facebook_id: ${facebook_id}, score: ${score}`);
     
-            // Check if the challenge exists and is in progress
-            if (challenges[challengeId] && challenges[challengeId].challenge_status === 'in_progress') {
-                challenges[challengeId].scores[facebook_id] = score; // Store the score for the player
+        // Check if the challenge exists and is in progress
+        if (challenges[trimmedChallengeId] && challenges[trimmedChallengeId].challenge_status === 'in_progress') {
+            challenges[trimmedChallengeId].scores[facebook_id] = score; // Store the score for the player
     
-                // Check if both players have submitted their scores
-                if (Object.keys(challenges[challengeId].scores).length === 2) {
-                    const [facebook_id_1, facebook_id_2] = Object.keys(challenges[challengeId].scores);
-                    const score_1 = challenges[challengeId].scores[facebook_id_1];
-                    const score_2 = challenges[challengeId].scores[facebook_id_2];
-                    
-                    let winner;
-                    if (score_1 > score_2) {
-                        winner = facebook_id_1;
-                    } else if (score_2 > score_1) {
-                        winner = facebook_id_2;
-                    } else {
-                        winner = "Draw"; // Handle tie case
-                    }
-    
-                    // Notify both users about the challenge result
-                    
-                    io.emit('challengeCompleted', {
-                        challengeId,
-                        winner,
-                    });
-    
-                    challenges[challengeId].challenge_status = 'completed';
-                    challenges[challengeId].winner = winner;
-                    console.log(`Challenge ${challengeId} completed. Winner: ${winner}`);
+            // Check if both players have submitted their scores
+            if (Object.keys(challenges[trimmedChallengeId].scores).length === 2) {
+                const [facebook_id_1, facebook_id_2] = Object.keys(challenges[trimmedChallengeId].scores);
+                const score_1 = challenges[trimmedChallengeId].scores[facebook_id_1];
+                const score_2 = challenges[trimmedChallengeId].scores[facebook_id_2];
+                
+                let winner;
+                if (score_1 > score_2) {
+                    winner = facebook_id_1;
+                } else if (score_2 > score_1) {
+                    winner = facebook_id_2;
+                } else {
+                    winner = "Draw"; // Handle tie case
                 }
-            } else {
-                console.error(`No in-progress challenge found with ID: ${challengeId}`);
+    
+                // Notify both users about the challenge result
+                io.emit('challengeCompleted', {
+                    challengeId: trimmedChallengeId,
+                    winner,
+                });
+    
+                challenges[trimmedChallengeId].challenge_status = 'completed';
+                challenges[trimmedChallengeId].winner = winner;
+                console.log(`Challenge ${trimmedChallengeId} completed. Winner: ${winner}`);
             }
-        });
-    
-    
+        } else {
+            console.error(`No in-progress challenge found with ID: ${trimmedChallengeId}`);
+        }
+    });
+
     // Handle challenge rejection
     socket.on('rejectChallenge', ({ challengeId }) => {
-        console.log(`rejectChallenge event received for challengeId: ${challengeId}`);
-        if (challenges[challengeId] && challenges[challengeId].challenge_status === 'pending') {
-            challenges[challengeId].challenge_status = 'rejected';
+        const trimmedChallengeId = challengeId.trim(); // Ensure the challengeId is trimmed
+        console.log(`rejectChallenge event received for challengeId: ${trimmedChallengeId}`);
+        if (challenges[trimmedChallengeId] && challenges[trimmedChallengeId].challenge_status === 'pending') {
+            challenges[trimmedChallengeId].challenge_status = 'rejected';
 
             // Notify both users about the rejection
-            io.emit('challengeRejected', { challengeId });
-            // io.to(challenges[challengeId].facebook_id_2).emit('challengeRejected', { challengeId });
+            io.emit('challengeRejected', { challengeId: trimmedChallengeId });
 
-            console.log(`Challenge ${challengeId} rejected.`);
+            console.log(`Challenge ${trimmedChallengeId} rejected.`);
         } else {
-            console.log(`No challenge found or challenge not pending for ID: ${challengeId}`);
+            console.log(`No challenge found or challenge not pending for ID: ${trimmedChallengeId}`);
         }
     });
-
     // Handle disconnection
     socket.on('disconnect', () => {
         console.log(`User disconnected: ${socket.id}`);
