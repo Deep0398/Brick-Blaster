@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticLoginController, facebookLoginController, getUnlockLevels, getUserController, getdetailController, guestLoginController, updateInrController,referAndEarnController,kycController,withdrawcontroller} from '../controllers/UserController.js';
+import { deleteUserController,authenticLoginController, facebookLoginController, getUnlockLevels, getUserController, getdetailController, guestLoginController, updateInrController,referAndEarnController,kycController,withdrawcontroller} from '../controllers/UserController.js';
 import { checkUserLogin } from '../middleware/middlewares.js';
 import { getChallengeController } from '../controllers/user.challenge.controller.js';
 import upload from '../middleware/upload.js';
@@ -19,6 +19,7 @@ userRouter.get('/getdetails',getdetailController);
 userRouter.post('/withdraw',checkUserLogin,withdrawcontroller)
 userRouter.put('/updateINR',checkUserLogin,updateInrController)
 userRouter.get('/getChallenges',getChallengeController)
+userRouter.delete('/delete/user/:id',deleteUserController)
 
 // userRouter.post('/kyc',checkUserLogin,upload.array('files'),kycController)
 userRouter.post(

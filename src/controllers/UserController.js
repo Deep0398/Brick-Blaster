@@ -466,3 +466,16 @@ async function getUserINRBalance(userId) {
         throw error;
     }
 }
+
+export async function deleteUserController(req,res){
+    try{
+        const { id } = req.params;
+        const user = await userModel.findByIdAndDelete(id);
+        if (!user) {
+            return res.send(error(404, "User not found"));
+        }
+        return res.send(success(200, "User deleted successfully"));
+    }catch (err) {
+            return res.send(error(500, err.message));
+        }
+}
