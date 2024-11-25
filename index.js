@@ -74,17 +74,33 @@ io.on('connection', (socket) => {
 
     // Handle challenge initiation
     socket.on('initiateChallenge', ({ facebook_id_1, username_1, facebook_id_2, username_2, level_id }) => {
-        const challengeId = `${facebook_id_1}_${facebook_id_2}_${level_id}`.trim(); // Ensure the challengeId is trimmed
+        // const challengeId = `${facebook_id_1}_${facebook_id_2}_${level_id}`.trim(); // Ensure the challengeId is trimmed
 
-        challenges[challengeId] = {
-            facebook_id_1,
-            username_1,
-            facebook_id_2,
-            username_2,
-            level_id,
-            challenge_status: 'pending',
-            scores: {}
-        };
+        // challenges[challengeId] = {
+        //     facebook_id_1,
+        //     username_1,
+        //     facebook_id_2,
+        //     username_2,
+        //     level_id,
+        //     challenge_status: 'pending',
+        //     scores: {}
+        // };
+
+        const challengeId = `${facebook_id_1}_${facebook_id_2}_${level_id}`;
+if (challengeId && typeof challengeId === 'string') {
+    const trimmedChallengeId = challengeId.trim();
+    challenges[trimmedChallengeId] = {
+        facebook_id_1,
+        username_1,
+        facebook_id_2,
+        username_2,
+        level_id,
+        challenge_status: 'pending',
+        scores: {}
+    };
+} else {
+    console.error('Invalid challengeId:', challengeId);
+}
 
         // Notify the second user about the challenge
         io.emit('receiveChallenge', {
