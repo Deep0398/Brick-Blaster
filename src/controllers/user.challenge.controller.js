@@ -121,7 +121,7 @@ export async function getAllChallengeController(req,res){
         const user =req._id;
         const currUser = await userModel.findById(user)
         if (!currUser){
-            return res.status(404).send(404,'User Does Not Exist');
+            return res.status(404).send('User Does Not Exist');
         }
 
         const completedChallenges = await challengemodel.find({user})
@@ -131,7 +131,7 @@ export async function getAllChallengeController(req,res){
         const allChallenges = [...completedChallenges,...ongoingChallenges]
 
       if(allChallenges.length === 0) {
-        return res.status(404).send(404,"no challenge have been played by you");
+        return res.status(404).send("no challenge have been played by you");
       }
 
       const challengesResponse = allChallenges.map(challenge => {
@@ -154,7 +154,7 @@ export async function getAllChallengeController(req,res){
         console.log(allChallenges)
         return res.send(success(200,allChallenges))
     }catch(error){
-        return res.status(500).send(500,err.message)
+        return res.status(500).send({ message: err.message })
     }
 }
 
