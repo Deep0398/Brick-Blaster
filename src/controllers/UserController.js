@@ -476,6 +476,7 @@ export async function deleteUserController(req,res){
         }
         return res.send(success(200, "User deleted successfully"));
     }catch (err) {
+        console.log(err)
             return res.send(error(500, err.message));
         }
 }

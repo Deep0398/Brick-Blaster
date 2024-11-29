@@ -3,6 +3,8 @@ import challengemodel from "../models/user.challenge.model.js";
 import { userModel } from "../models/User.js";
 import { success,error } from "../utills/responseWrapper.utills.js";
 import CompletedChallenge from "../models/completedChallenge.js";
+
+
 export async function insertChallengeController(req,res){
     try{
         const user =req._id;
