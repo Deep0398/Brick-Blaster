@@ -4,6 +4,7 @@ import { checkUserLogin } from '../middleware/middlewares.js';
 import { getChallengeController } from '../controllers/user.challenge.controller.js';
 import upload from '../middleware/upload.js';
 import { updateBallController, updateCoinController, updateUserController } from '../controllers/UpdateController.js';
+import { updateOnlineStatusController } from "../controllers/notification.controller.js";
 const userRouter = express.Router();
 
 userRouter.post('/userlogin',authenticLoginController);
@@ -20,6 +21,7 @@ userRouter.post('/withdraw',checkUserLogin,withdrawcontroller)
 userRouter.put('/updateINR',checkUserLogin,updateInrController)
 userRouter.get('/getChallenges',getChallengeController)
 userRouter.delete('/delete/user/:id',deleteUserController)
+userRouter.post("/update-online-status", updateOnlineStatusController);
 userRouter.post("/addfriends", addUserFriends);
 
 
