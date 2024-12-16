@@ -145,16 +145,44 @@ export async function facebookLoginController(req, res) {
 }
 
 
-export async function getUserController(req,res){
+// export async function getUserController(req,res){
+//     try {
+//         const currUserID = req._id;
+//         const user = await userModel.findOne({_id:currUserID}).populate('achievements').populate('levels');
+//         if(!user){
+//             return res.send(error(404,"user not found"));
+//         }
+//         return res.send(success(200,user));
+//     } catch (err) {
+//         return res.send(error(500,err.message));
+//     }
+//   }
+
+export async function getUserController(req, res) {
     try {
-        const currUserID = req._id;
-        const user = await userModel.findOne({_id:currUserID}).populate('achievements').populate('levels');
-        if(!user){
-            return res.send(error(404,"user not found"));
-        }
-        return res.send(success(200,user));
+      console.log("Request params:", req.params); // Debugging step
+      const userId = req.params.id; // Get the 'id' from the route
+  
+      if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+      }
+  
+      const user = await userModel
+        .findOne({ _id: userId })
+        .populate("Levels")
+        .populate({
+          path: "friends", // Populate the friends field with details
+          select: "facebookID", // Only select the facebookID field for friends
+        });
+  
+      if (!user) {
+        return res.status(404).json({ error: "User not found!" });
+      }
+  
+      return res.status(200).json({ success: true, data: user });
     } catch (err) {
-        return res.send(error(500,err.message));
+      console.error("Error fetching user:", err);
+      return res.status(500).json({ error: "Internal server error", details: err.message });
     }
   }
  
@@ -480,3 +508,60 @@ export async function deleteUserController(req,res){
             return res.send(error(500, err.message));
         }
 }
+
+export async function addUserFriends(req, res) {
+    try {
+      const { facebookID, friendsList } = req.body;
+  
+      if (!facebookID || !Array.isArray(friendsList)) {
+        return res.status(400).json({
+          error: "Invalid input. facebookID and friendsList are required.",
+        });
+      }
+  
+      // Find the user's existing friends
+      const user = await facebookModel.findOne({ facebookID }, "friends");
+      const existingFriends = user ? user.friends : [];
+  
+      // Filter out friends that are already in the user's friends list
+      const newFriendsList = friendsList.filter(
+        (friendID) => !existingFriends.includes(friendID)
+      );
+  
+      if (!newFriendsList.length) {
+        return res
+          .status(400)
+          .json({ error: "All friends in the list are already added." });
+      }
+  
+      // Validate the new friends by checking if they exist in the database
+      const validFriends = await facebookModel.find(
+        { facebookID: { $in: newFriendsList } },
+        "facebookID"
+      );
+  
+      if (!validFriends.length) {
+        return res.status(400).json({ error: "No valid friends found to add." });
+      }
+  
+      const validFriendsIDs = validFriends.map((friend) => friend.facebookID);
+  
+      // Update the user's friends list
+      const updatedUser = await facebookModel.findOneAndUpdate(
+        { facebookID },
+        {
+          $addToSet: { friends: { $each: validFriendsIDs } }, // Add valid facebookIDs to the friends list
+          $setOnInsert: { referralCode: `REF-${Date.now()}` }, // Set referral code if the user is newly inserted
+        },
+        { new: true, upsert: true }
+      );
+  
+      res.status(200).json({
+        message: "Friends added successfully",
+        newFriends: validFriendsIDs,
+      });
+    } catch (err) {
+      console.error("Error adding friends:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }

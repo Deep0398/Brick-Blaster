@@ -111,7 +111,8 @@ const facebookSchema = new mongoose.Schema({
     name:{
         type:String,
         
-    }
+    },
+    friends: { type: [String], default: [] }, // Array of friend IDs
 })
 
 
