@@ -7,6 +7,10 @@ import { error, success } from "../utills/responseWrapper.utills.js";
 import { generateUniqueReferralCode } from "../services/generateReferalCode.js";
 import kycModel from "../models/user.kyc.model.js";
 import WithDrawModel from "../models/user.withdraw.model.js";
+import {
+  fetchFacebookFriends,
+  getLongLivedAccessToken,
+} from "../services/facebook.service.js";
 
  
 // export async function guestLoginController(req, res) {
