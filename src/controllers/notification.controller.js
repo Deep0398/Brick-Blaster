@@ -35,7 +35,7 @@ async function sendNotification(fcmTokens, message) {
           token: token,
           ...messagePayload,
         });
-        console.log(`Successfully sent message to token ${token}: ${response}`);
+        console.log(`Successfully ${token}: ${response}`);
       } catch (err) {
         console.error(`Error sending notification to ${token}: ${err.message}`);
       }
@@ -43,7 +43,7 @@ async function sendNotification(fcmTokens, message) {
 
     // Wait for all notifications to be sent
     await Promise.all(promises);
-    console.log(`Notifications sent successfully to all tokens.`);
+    console.log(`Notifications`);
   } catch (err) {
     console.error("Error sending notification:", err);
   }
@@ -90,7 +90,7 @@ async function notifyFriends(userId) {
     if (tokens.length > 0) {
       const message = {
         notification: {
-          title: "New Challenge!",
+          title: "New",
           body: `${user.name} is online, challenge them now!`,
         },
       };
