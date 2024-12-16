@@ -105,15 +105,24 @@ const authSchema = new mongoose.Schema({
 const facebookSchema = new mongoose.Schema({
     facebookID:{
         type:String,
-        unique:true
-       
+        unique:true, 
     },
-    name:{
-        type:String,
-        
-    },
+    name: String,
+    friends: [
+  {
+    facebookID: String,
+    name: String,
+    isOnline: { type: Boolean, default: false },
+    lastActive: Date,
+  }
+],
+    isOnline: { type: Boolean, default: false },
+    lastActive: Date,
+    fcmToken : [String],
     friends: { type: [String], default: [] }, // Array of friend IDs
-})
+},
+{ timestamps: true }
+)
 
 
 export const userModel = mongoose.model('user', commonSchema);
