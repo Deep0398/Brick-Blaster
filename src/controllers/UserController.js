@@ -259,82 +259,82 @@ export async function authenticLoginController(req, res) {
 // }
 
 export async function facebookLoginController(req, res) {
-    try {
-      const { facebookID, deviceID, fcmToken, name, shortLivedToken } = req.body;
-      console.log("Received request:", { facebookID, deviceID, fcmToken, name });
-  
-      if (!facebookID && !deviceID) {
-        return res.status(422).send(error("Insufficient data provided"));
-      }
-  
-      const guestUser = await guestModel.findOne({ deviceID });
-  
-      let existingUser = facebookID
-        ? await facebookModel.findOne({ facebookID })
-        : null;
-  
-      if (!existingUser) {
-        const referralCode = generateUniqueReferralCode();
-        const newUser = new facebookModel({
-          referralCode,
-          facebookID,
-          name,
-          fcmToken: fcmToken ? [fcmToken] : [],
-        });
-  
-        if (guestUser) {
-          Object.assign(newUser, {
-            life: guestUser.life,
-            coins: guestUser.coins,
-            ExtraMoves: guestUser.ExtraMoves,
-            Packages: guestUser.Packages,
-            Stripes: guestUser.Stripes,
-            ExtraTime: guestUser.ExtraTime,
-            Bomb: guestUser.Bomb,
-            Colorful_bomb: guestUser.Colorful_bomb,
-            Hand: guestUser.Hand,
-            Random_color: guestUser.Random_color,
-            levels: guestUser.levels,
-          });
-  
-          await guestModel.deleteOne({ _id: guestUser._id });
-        }
-  
-        const longLivedToken = await getLongLivedAccessToken(shortLivedToken);
-        if (!longLivedToken) {
-          return res
-            .status(500)
-            .send(error("Failed to obtain Facebook access token"));
-        }
-        const friendsList = await fetchFacebookFriends(
-          facebookID,
-          longLivedToken
-        );
-        newUser.friends = friendsList;
-  
-        await newUser.save();
-  
-        const accessToken = generateAccessToken(newUser);
-  
-        return res
-          .status(200)
-          .send(success({ accessToken, user: newUser, isNewUser: true }));
-      }
-  
-      if (fcmToken && !existingUser.fcmToken.includes(fcmToken)) {
-        existingUser.fcmToken.push(fcmToken);
-        await existingUser.save();
-      }
-  
-      const accessToken = generateAccessToken(existingUser.toObject());
-  
-      return res.send(
-        success(200, { accessToken, user: existingUser, isNewUser: false })
-      );
-    } catch (err) {
-      return res.status(500).send(error(err.message));
+  try {
+    const { facebookID, deviceID, fcmToken, name, shortLivedToken } = req.body;
+    console.log("Received request:", { facebookID, deviceID, fcmToken, name });
+
+    if (!facebookID && !deviceID) {
+      return res.status(422).send(error("Insufficient data provided"));
     }
+
+    const guestUser = await guestModel.findOne({ deviceID });
+
+    let existingUser = facebookID
+      ? await facebookModel.findOne({ facebookID })
+      : null;
+
+    if (!existingUser) {
+      const referralCode = generateUniqueReferralCode();
+      const newUser = new facebookModel({
+        referralCode,
+        facebookID,
+        name,
+        fcmToken: fcmToken ? [fcmToken] : [],
+      });
+
+      if (guestUser) {
+        Object.assign(newUser, {
+          life: guestUser.life,
+          coins: guestUser.coins,
+          ExtraMoves: guestUser.ExtraMoves,
+          Packages: guestUser.Packages,
+          Stripes: guestUser.Stripes,
+          ExtraTime: guestUser.ExtraTime,
+          Bomb: guestUser.Bomb,
+          Colorful_bomb: guestUser.Colorful_bomb,
+          Hand: guestUser.Hand,
+          Random_color: guestUser.Random_color,
+          levels: guestUser.levels,
+        });
+
+        await guestModel.deleteOne({ _id: guestUser._id });
+      }
+
+      const longLivedToken = await getLongLivedAccessToken(shortLivedToken);
+      if (!longLivedToken) {
+        return res
+          .status(500)
+          .send(error("Failed to obtain Facebook access token"));
+      }
+      const friendsList = await fetchFacebookFriends(
+        facebookID,
+        longLivedToken
+      );
+      newUser.friends = friendsList;
+
+      await newUser.save();
+
+      const accessToken = generateAccessToken(newUser);
+
+      return res
+        .status(200)
+        .send(success({ accessToken, user: newUser, isNewUser: true }));
+    }
+
+    if (fcmToken && !existingUser.fcmToken.includes(fcmToken)) {
+      existingUser.fcmToken.push(fcmToken);
+      await existingUser.save();
+    }
+
+    const accessToken = generateAccessToken(existingUser.toObject());
+
+    return res.send(
+      success(200, { accessToken, user: existingUser, isNewUser: false })
+    );
+  } catch (err) {
+    return res.status(500).send(error(err.message));
   }
+}
 
 
 // export async function getUserController(req,res){
