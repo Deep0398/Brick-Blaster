@@ -337,68 +337,68 @@ export async function facebookLoginController(req, res) {
 }
 
 
-// export async function getUserController(req,res){
-//     try {
-//         const currUserID = req._id;
-//         const user = await userModel.findOne({_id:currUserID}).populate('achievements').populate('levels');
-//         if(!user){
-//             return res.send(error(404,"user not found"));
-//         }
-//         return res.send(success(200,user));
-//     } catch (err) {
-//         return res.send(error(500,err.message));
-//     }
-//   }
-
-export async function getUserController(req, res) {
-  try {
-    console.log("Request params:", req.params); // Debugging step
-    const userId = req.params.id; // Get the 'id' from the route
-
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
+export async function getUserController(req,res){
+    try {
+        const currUserID = req._id;
+        const user = await userModel.findOne({_id:currUserID}).populate('achievements').populate('levels');
+        if(!user){
+            return res.send(error(404,"user not found"));
+        }
+        return res.send(success(200,user));
+    } catch (err) {
+        return res.send(error(500,err.message));
     }
-
-    // Fetch user with populated levels and friends
-    const user = await userModel
-      .findOne({ _id: userId })
-      .populate("Levels") // Populate the Levels field
-      .populate({
-        path: "friends", // Populate the friends field with details
-        select: "facebookID", // Only select the facebookID field for friends
-      });
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found!" });
-    }
-
-    // Check if user.Levels exists and is an array before calling .map()
-    const formattedLevels = (user.Levels && Array.isArray(user.Levels))
-      ? user.Levels.map(level => ({
-          _id: level._id,
-          level: level.level,
-          star: level.stars,  // Make sure to use 'stars' instead of 'star'
-          score: level.score,
-          user: level.user,
-          __v: level.__v
-        }))
-      : [];  // If Levels is undefined or not an array, set it to an empty array
-
-    // Prepare the response data with formatted levels
-    const responseData = {
-      ...user.toObject(),
-      Levels: formattedLevels,  // Add the formatted levels here
-    };
-
-    // Remove the original Levels field if necessary
-    delete responseData.Levels;
-
-    return res.status(200).json({ success: true, result: responseData });
-  } catch (err) {
-    console.error("Error fetching user:", err);
-    return res.status(500).json({ error: "Internal server error", details: err.message });
   }
-}
+
+// export async function getUserController(req, res) {
+//   try {
+//     console.log("Request params:", req.params); // Debugging step
+//     const userId = req.params.id; // Get the 'id' from the route
+
+//     if (!userId) {
+//       return res.status(400).json({ error: "User ID is required" });
+//     }
+
+//     // Fetch user with populated levels and friends
+//     const user = await userModel
+//       .findOne({ _id: userId })
+//       .populate("Levels") // Populate the Levels field
+//       .populate({
+//         path: "friends", // Populate the friends field with details
+//         select: "facebookID", // Only select the facebookID field for friends
+//       });
+
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found!" });
+//     }
+
+//     // Check if user.Levels exists and is an array before calling .map()
+//     const formattedLevels = (user.Levels && Array.isArray(user.Levels))
+//       ? user.Levels.map(level => ({
+//           _id: level._id,
+//           level: level.level,
+//           star: level.stars,  // Make sure to use 'stars' instead of 'star'
+//           score: level.score,
+//           user: level.user,
+//           __v: level.__v
+//         }))
+//       : [];  // If Levels is undefined or not an array, set it to an empty array
+
+//     // Prepare the response data with formatted levels
+//     const responseData = {
+//       ...user.toObject(),
+//       Levels: formattedLevels,  // Add the formatted levels here
+//     };
+
+//     // Remove the original Levels field if necessary
+//     delete responseData.Levels;
+
+//     return res.status(200).json({ success: true, result: responseData });
+//   } catch (err) {
+//     console.error("Error fetching user:", err);
+//     return res.status(500).json({ error: "Internal server error", details: err.message });
+//   }
+// }
 
 
  
