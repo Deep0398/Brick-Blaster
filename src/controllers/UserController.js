@@ -361,7 +361,10 @@ export async function getUserController(req, res) {
 
       const user = await userModel
           .findOne({ _id: userId })
-          .populate("Levels")
+          .populate({
+              path: "levels",
+              model: "Level", // Replace with your Level model name if different
+          })
           .populate({
               path: "friends", // Populate the friends field with details
               select: "facebookID", // Only select the facebookID field for friends
@@ -371,25 +374,30 @@ export async function getUserController(req, res) {
           return res.status(404).json({ error: "User not found!" });
       }
 
-      // Safeguard for Levels
-      const formattedLevels = Array.isArray(user.Levels)
-          ? user.Levels.map(level => ({
-                id: level._id,
-                level: level.level,
-                star: level.star,
-                score: level.score,
-            }))
-          : [];
+      // Transform Levels to desired structure
+      const formattedLevels = user.levels.map(level => ({
+          _id: level._id,
+          level: level.level,
+          star: level.star,
+          score: level.score,
+          user: level.user,
+          __v: level.__v,
+      }));
 
-      // Replace Levels with formatted data
-      user.Levels = formattedLevels;
+      // Prepare the final response
+      const responseData = {
+          ...user.toObject(),
+          Levels: formattedLevels, // Replace levels with formatted Levels
+      };
+      delete responseData.levels; // Remove the original levels field if required
 
-      return res.status(200).json({ success: true, result: user });
+      return res.status(200).json({ success: true, result: responseData });
   } catch (err) {
       console.error("Error fetching user:", err);
       return res.status(500).json({ error: "Internal server error", details: err.message });
   }
 }
+
 
 
  
