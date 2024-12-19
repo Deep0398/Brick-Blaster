@@ -350,51 +350,40 @@ export async function facebookLoginController(req, res) {
 //     }
 //   }
 
-export async function getUserController(req, res) {
+export async function guestLoginController(req, res) {
   try {
-      console.log("Request params:", req.params); // Debugging step
-      const userId = req.params.id; // Get the 'id' from the route
+    const { deviceID } = req.body;
+    console.log(deviceID);
 
-      if (!userId) {
-          return res.status(400).json({ error: "User ID is required" });
-      }
+    if (!deviceID) {
+      return res.send(error(422, "insufficient data"));
+    }
 
-      const user = await userModel
-          .findOne({ _id: userId })
-          .populate({
-              path: "levels",
-              model: "Level", // Replace with your Level model name if different
-          })
-          .populate({
-              path: "friends", // Populate the friends field with details
-              select: "facebookID", // Only select the facebookID field for friends
-          });
+    const existingUser = await guestModel.findOne({ deviceID });
 
-      if (!user) {
-          return res.status(404).json({ error: "User not found!" });
-      }
+    if (existingUser) {
+      // If the existing user is found, delete it
+      await guestModel.deleteOne({ deviceID });
+    }
 
-      // Transform Levels to desired structure
-      const formattedLevels = user.levels.map(level => ({
-          _id: level._id,
-          level: level.level,
-          star: level.star,
-          score: level.score,
-          user: level.user,
-          __v: level.__v,
-      }));
+    const referralCode = generateUniqueReferralCode();
 
-      // Prepare the final response
-      const responseData = {
-          ...user.toObject(),
-          Levels: formattedLevels, // Replace levels with formatted Levels
-      };
-      delete responseData.levels; // Remove the original levels field if required
+    const newUser = await guestModel.create({ deviceID, referralCode });
+    console.log(newUser);
 
-      return res.status(200).json({ success: true, result: responseData });
+    const userDetails = await userModel
+      .findOne({ _id: newUser._id })
+      .populate("achievements")
+      .populate("levels");
+    if (!userDetails) {
+      return res.status(404).send({ message: "User details not found" });
+    }
+    const accessToken = generateAccessToken({ ...userDetails });
+    return res.send(
+      success(200, { accessToken, user: userDetails, isNewUser: true })
+    );
   } catch (err) {
-      console.error("Error fetching user:", err);
-      return res.status(500).json({ error: "Internal server error", details: err.message });
+    return res.send(error(500, err.message));
   }
 }
 
