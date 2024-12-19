@@ -350,40 +350,31 @@ export async function facebookLoginController(req, res) {
 //     }
 //   }
 
-export async function guestLoginController(req, res) {
+export async function getUserController(req, res) {
   try {
-    const { deviceID } = req.body;
-    console.log(deviceID);
+    console.log("Request params:", req.params); // Debugging step
+    const userId = req.params.id; // Get the 'id' from the route
 
-    if (!deviceID) {
-      return res.send(error(422, "insufficient data"));
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
     }
 
-    const existingUser = await guestModel.findOne({ deviceID });
+    const user = await userModel
+      .findOne({ _id: userId })
+      .populate("Levels")
+      .populate({
+        path: "friends", // Populate the friends field with details
+        select: "facebookID", // Only select the facebookID field for friends
+      });
 
-    if (existingUser) {
-      // If the existing user is found, delete it
-      await guestModel.deleteOne({ deviceID });
+    if (!user) {
+      return res.status(404).json({ error: "User not found!" });
     }
 
-    const referralCode = generateUniqueReferralCode();
-
-    const newUser = await guestModel.create({ deviceID, referralCode });
-    console.log(newUser);
-
-    const userDetails = await userModel
-      .findOne({ _id: newUser._id })
-      .populate("achievements")
-      .populate("levels");
-    if (!userDetails) {
-      return res.status(404).send({ message: "User details not found" });
-    }
-    const accessToken = generateAccessToken({ ...userDetails });
-    return res.send(
-      success(200, { accessToken, user: userDetails, isNewUser: true })
-    );
+    return res.status(200).json({ success: true, data: user });
   } catch (err) {
-    return res.send(error(500, err.message));
+    console.error("Error fetching user:", err);
+    return res.status(500).json({ error: "Internal server error", details: err.message });
   }
 }
 
