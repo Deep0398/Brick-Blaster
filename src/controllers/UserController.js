@@ -362,7 +362,7 @@ export async function getUserController(req, res) {
     // Fetch user with populated levels and friends
     const user = await userModel
       .findOne({ _id: userId })
-      .populate("Levels") // Populate the Levels field
+      .populate("levels") // Populate the Levels field with full level data
       .populate({
         path: "friends", // Populate the friends field with details
         select: "facebookID", // Only select the facebookID field for friends
@@ -372,17 +372,15 @@ export async function getUserController(req, res) {
       return res.status(404).json({ error: "User not found!" });
     }
 
-    // Check if user.Levels exists and is an array before calling .map()
-    const formattedLevels = (user.Levels && Array.isArray(user.Levels))
-      ? user.Levels.map(level => ({
-          _id: level._id,
-          level: level.level,
-          star: level.stars,  // Make sure to use 'stars' instead of 'star'
-          score: level.score,
-          user: level.user,
-          __v: level.__v
-        }))
-      : [];  // If Levels is undefined or not an array, set it to an empty array
+    // Format the Levels data correctly
+    const formattedLevels = user.levels.map(level => ({
+      _id: level._id,
+      level: level.level,
+      star: level.star,
+      score: level.score,
+      user: level.user,
+      __v: level.__v
+    }));
 
     // Prepare the response data with formatted levels
     const responseData = {
@@ -390,15 +388,13 @@ export async function getUserController(req, res) {
       Levels: formattedLevels,  // Add the formatted levels here
     };
 
-    // Remove the original Levels field if necessary
-    delete responseData.Levels;
-
     return res.status(200).json({ success: true, result: responseData });
   } catch (err) {
     console.error("Error fetching user:", err);
     return res.status(500).json({ error: "Internal server error", details: err.message });
   }
 }
+
 
 
  
