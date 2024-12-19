@@ -371,13 +371,15 @@ export async function getUserController(req, res) {
           return res.status(404).json({ error: "User not found!" });
       }
 
-      // Reshape the Levels field
-      const formattedLevels = user.Levels.map(level => ({
-          id: level._id,
-          level: level.level,
-          star: level.star,
-          score: level.score,
-      }));
+      // Safeguard for Levels
+      const formattedLevels = Array.isArray(user.Levels)
+          ? user.Levels.map(level => ({
+                id: level._id,
+                level: level.level,
+                star: level.star,
+                score: level.score,
+            }))
+          : [];
 
       // Replace Levels with formatted data
       user.Levels = formattedLevels;
@@ -388,6 +390,7 @@ export async function getUserController(req, res) {
       return res.status(500).json({ error: "Internal server error", details: err.message });
   }
 }
+
 
  
   
