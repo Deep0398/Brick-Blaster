@@ -363,12 +363,12 @@ export async function getUserController(req, res) {
     const user = await userModel
       .findOne({ _id: userId })
       .populate({
-        path: "levels", // Populate the levels field
-        model: "levelModel", // Ensure the correct model name is used
+        path: "levels",
+        model: "level", // Ensure the model name matches registration
       })
       .populate({
-        path: "friends", // Populate the friends field with details
-        select: "facebookID", // Only select the facebookID field for friends
+        path: "friends",
+        select: "facebookID",
       });
 
     if (!user) {
@@ -379,19 +379,17 @@ export async function getUserController(req, res) {
     const formattedLevels = user.levels.map(level => ({
       _id: level._id,
       level: level.level,
-      star: level.stars, // Rename `stars` to `star`
+      star: level.stars,
       score: level.score,
       user: level.user,
       __v: level.__v,
     }));
 
-    // Prepare the final response
     const responseData = {
-      ...user.toObject(), // Convert user document to a plain object
-      Levels: formattedLevels, // Add the formatted Levels
+      ...user.toObject(),
+      Levels: formattedLevels,
     };
 
-    // Remove the original `levels` field if required
     delete responseData.levels;
 
     return res.status(200).json({ success: true, data: responseData });
@@ -400,6 +398,7 @@ export async function getUserController(req, res) {
     return res.status(500).json({ error: "Internal server error", details: err.message });
   }
 }
+
 
 
 
