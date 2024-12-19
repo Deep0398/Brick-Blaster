@@ -371,7 +371,7 @@ export async function getUserController(req, res) {
         return res.status(404).json({ error: "User not found!" });
       }
   
-      return res.status(200).json({ success: true, data: user });
+      return res.status(200).json({ success: true, result: user });
     } catch (err) {
       console.error("Error fetching user:", err);
       return res.status(500).json({ error: "Internal server error", details: err.message });
