@@ -4,8 +4,8 @@ import serviceAccount from "../config/serviceAccountKey.json" assert { type: "js
 import { facebookModel } from "../models/User.js";
 
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
+  credential: admin.credential.cert(serviceAccount)
+});
 
 
 async function getOnlineFriends(userID) {

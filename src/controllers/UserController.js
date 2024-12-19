@@ -42,41 +42,41 @@ import {
 // }
 
 export async function guestLoginController(req, res) {
-    try {
-      const { deviceID } = req.body;
-      console.log(deviceID);
-  
-      if (!deviceID) {
-        return res.send(error(422, "insufficient data"));
-      }
-  
-      const existingUser = await guestModel.findOne({ deviceID });
-  
-      if (existingUser) {
-        // If the existing user is found, delete it
-        await guestModel.deleteOne({ deviceID });
-      }
-  
-      const referralCode = generateUniqueReferralCode();
-  
-      const newUser = await guestModel.create({ deviceID, referralCode });
-      console.log(newUser);
-  
-      const userDetails = await userModel
-        .findOne({ _id: newUser._id })
-        .populate("achievements")
-        .populate("levels");
-      if (!userDetails) {
-        return res.status(404).send({ message: "User details not found" });
-      }
-      const accessToken = generateAccessToken({ ...userDetails });
-      return res.send(
-        success(200, { accessToken, user: userDetails, isNewUser: true })
-      );
-    } catch (err) {
-      return res.send(error(500, err.message));
+  try {
+    const { deviceID } = req.body;
+    console.log(deviceID);
+
+    if (!deviceID) {
+      return res.send(error(422, "insufficient data"));
     }
+
+    const existingUser = await guestModel.findOne({ deviceID });
+
+    if (existingUser) {
+      // If the existing user is found, delete it
+      await guestModel.deleteOne({ deviceID });
+    }
+
+    const referralCode = generateUniqueReferralCode();
+
+    const newUser = await guestModel.create({ deviceID, referralCode });
+    console.log(newUser);
+
+    const userDetails = await userModel
+      .findOne({ _id: newUser._id })
+      .populate("achievements")
+      .populate("levels");
+    if (!userDetails) {
+      return res.status(404).send({ message: "User details not found" });
+    }
+    const accessToken = generateAccessToken({ ...userDetails });
+    return res.send(
+      success(200, { accessToken, user: userDetails, isNewUser: true })
+    );
+  } catch (err) {
+    return res.send(error(500, err.message));
   }
+}
 
 //   export async function authenticLoginController(req, res) {
 //     try {
@@ -127,77 +127,77 @@ export async function guestLoginController(req, res) {
 //     }
 // }
 export async function authenticLoginController(req, res) {
-    try {
-      const { email, deviceID, name } = req.body;
-      if (!email || !deviceID || !name) {
-        return res.send(error(422, "Insufficient data"));
+  try {
+    const { email, deviceID, name } = req.body;
+    if (!email || !deviceID || !name) {
+      return res.send(error(422, "Insufficient data"));
+    }
+
+    // Find guest user based on deviceID
+    const guestUser = await guestModel.findOne({ deviceID });
+
+    // Check if the user already exists
+    const existingUser = await authModel.findOne({ email });
+
+    if (!existingUser) {
+      // Generate referral code for new users
+      const referralCode = generateUniqueReferralCode();
+      const newUser = new authModel({ email, name, referralCode });
+
+      // Transfer guest data to the authenticated user
+      if (guestUser) {
+        Object.assign(newUser, {
+          life: guestUser.life,
+          coins: guestUser.coins,
+          ExtraMoves: guestUser.ExtraMoves,
+          Packages: guestUser.Packages,
+          Stripes: guestUser.Stripes,
+          ExtraTime: guestUser.ExtraTime,
+          Bomb: guestUser.Bomb,
+          Colorful_bomb: guestUser.Colorful_bomb,
+          Hand: guestUser.Hand,
+          Random_color: guestUser.Random_color,
+          levels: guestUser.levels,
+        });
+
+        await guestModel.deleteOne({ _id: guestUser._id });
       }
-  
-      // Find guest user based on deviceID
-      const guestUser = await guestModel.findOne({ deviceID });
-  
-      // Check if the user already exists
-      const existingUser = await authModel.findOne({ email });
-  
-      if (!existingUser) {
-        // Generate referral code for new users
-        const referralCode = generateUniqueReferralCode();
-        const newUser = new authModel({ email, name, referralCode });
-  
-        // Transfer guest data to the authenticated user
-        if (guestUser) {
-          Object.assign(newUser, {
-            life: guestUser.life,
-            coins: guestUser.coins,
-            ExtraMoves: guestUser.ExtraMoves,
-            Packages: guestUser.Packages,
-            Stripes: guestUser.Stripes,
-            ExtraTime: guestUser.ExtraTime,
-            Bomb: guestUser.Bomb,
-            Colorful_bomb: guestUser.Colorful_bomb,
-            Hand: guestUser.Hand,
-            Random_color: guestUser.Random_color,
-            levels: guestUser.levels,
-          });
-  
-          await guestModel.deleteOne({ _id: guestUser._id });
-        }
-  
-        await newUser.save();
-  
-        const accessToken = generateAccessToken(newUser.toObject());
-  
-        return res.status(200).send(
-          success(200, {
-            accessToken,
-            user: newUser,
-            isNewUser: true,
-          })
-        );
-      }
-  
-      // If user exists, ensure deviceID is associated
-      if (!existingUser.deviceIDs) {
-        existingUser.deviceIDs = [];
-      }
-      if (!existingUser.deviceIDs.includes(deviceID)) {
-        existingUser.deviceIDs.push(deviceID);
-        await existingUser.save();
-      }
-  
-      const accessToken = generateAccessToken(existingUser.toObject());
-  
+
+      await newUser.save();
+
+      const accessToken = generateAccessToken(newUser.toObject());
+
       return res.status(200).send(
         success(200, {
           accessToken,
-          user: existingUser,
-          isNewUser: false,
+          user: newUser,
+          isNewUser: true,
         })
       );
-    } catch (err) {
-      return res.status(500).send(error(500, err.message));
     }
+
+    // If user exists, ensure deviceID is associated
+    if (!existingUser.deviceIDs) {
+      existingUser.deviceIDs = [];
+    }
+    if (!existingUser.deviceIDs.includes(deviceID)) {
+      existingUser.deviceIDs.push(deviceID);
+      await existingUser.save();
+    }
+
+    const accessToken = generateAccessToken(existingUser.toObject());
+
+    return res.status(200).send(
+      success(200, {
+        accessToken,
+        user: existingUser,
+        isNewUser: false,
+      })
+    );
+  } catch (err) {
+    return res.status(500).send(error(500, err.message));
   }
+}
 // export async function facebookLoginController(req, res) {
 //     try {
 //         const { facebookID, deviceID,name } = req.body;
