@@ -359,9 +359,13 @@ export async function getUserController(req, res) {
       return res.status(400).json({ error: "User ID is required" });
     }
 
+    // Fetch user with populated levels and friends
     const user = await userModel
       .findOne({ _id: userId })
-      .populate("Levels")
+      .populate({
+        path: "levels", // Populate the levels field
+        model: "levelModel", // Ensure the correct model name is used
+      })
       .populate({
         path: "friends", // Populate the friends field with details
         select: "facebookID", // Only select the facebookID field for friends
@@ -371,12 +375,32 @@ export async function getUserController(req, res) {
       return res.status(404).json({ error: "User not found!" });
     }
 
-    return res.status(200).json({ success: true, data: user });
+    // Transform levels to match the required structure
+    const formattedLevels = user.levels.map(level => ({
+      _id: level._id,
+      level: level.level,
+      star: level.stars, // Rename `stars` to `star`
+      score: level.score,
+      user: level.user,
+      __v: level.__v,
+    }));
+
+    // Prepare the final response
+    const responseData = {
+      ...user.toObject(), // Convert user document to a plain object
+      Levels: formattedLevels, // Add the formatted Levels
+    };
+
+    // Remove the original `levels` field if required
+    delete responseData.levels;
+
+    return res.status(200).json({ success: true, data: responseData });
   } catch (err) {
     console.error("Error fetching user:", err);
     return res.status(500).json({ error: "Internal server error", details: err.message });
   }
 }
+
 
 
 
