@@ -351,32 +351,44 @@ export async function facebookLoginController(req, res) {
 //   }
 
 export async function getUserController(req, res) {
-    try {
+  try {
       console.log("Request params:", req.params); // Debugging step
       const userId = req.params.id; // Get the 'id' from the route
-  
+
       if (!userId) {
-        return res.status(400).json({ error: "User ID is required" });
+          return res.status(400).json({ error: "User ID is required" });
       }
-  
+
       const user = await userModel
-        .findOne({ _id: userId })
-        .populate("Levels")
-        .populate({
-          path: "friends", // Populate the friends field with details
-          select: "facebookID", // Only select the facebookID field for friends
-        });
-  
+          .findOne({ _id: userId })
+          .populate("Levels")
+          .populate({
+              path: "friends", // Populate the friends field with details
+              select: "facebookID", // Only select the facebookID field for friends
+          });
+
       if (!user) {
-        return res.status(404).json({ error: "User not found!" });
+          return res.status(404).json({ error: "User not found!" });
       }
-  
+
+      // Reshape the Levels field
+      const formattedLevels = user.Levels.map(level => ({
+          id: level._id,
+          level: level.level,
+          star: level.star,
+          score: level.score,
+      }));
+
+      // Replace Levels with formatted data
+      user.Levels = formattedLevels;
+
       return res.status(200).json({ success: true, result: user });
-    } catch (err) {
+  } catch (err) {
       console.error("Error fetching user:", err);
       return res.status(500).json({ error: "Internal server error", details: err.message });
-    }
   }
+}
+
  
   
 export async function referAndEarnController(req, res) {
