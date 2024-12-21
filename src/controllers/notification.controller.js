@@ -16,7 +16,7 @@ async function getOnlineFriends(userID) {
   return onlineFriends;
 }
 
-async function sendNotification(fcmTokens, message) {
+export async function sendNotification(fcmTokens, message) {
   try {
     if (!fcmTokens || fcmTokens.length === 0) {
       console.error("No FCM tokens provided");

@@ -5,6 +5,7 @@ import { getChallengeController } from '../controllers/user.challenge.controller
 import upload from '../middleware/upload.js';
 import { updateBallController, updateCoinController, updateUserController } from '../controllers/UpdateController.js';
 import { updateOnlineStatusController } from "../controllers/notification.controller.js";
+import { getGifts, receiveGift, sendGift } from "../controllers/gift.controller.js";
 
 const userRouter = express.Router();
 
@@ -25,6 +26,9 @@ userRouter.delete('/delete/user/:id',deleteUserController)
 userRouter.post("/update-online-status", updateOnlineStatusController);
 
 userRouter.post("/addfriends", addUserFriends);
+userRouter.post("/sendGift", sendGift)
+userRouter.post("/receiveGift", receiveGift)
+userRouter.get("/getGift/:receiverFacebookID", getGifts)
 
 
 // userRouter.post('/kyc',checkUserLogin,upload.array('files'),kycController)

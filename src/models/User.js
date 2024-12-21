@@ -120,6 +120,20 @@ const facebookSchema = new mongoose.Schema({
     lastActive: Date,
     fcmToken : [String],
     friends: { type: [String], default: [] }, // Array of friend IDs
+
+    gifts: [
+        {
+            _id: mongoose.Schema.Types.ObjectId,
+            senderFacebookID: String,
+            senderName: String,
+            receiverFacebookID: String, 
+            receiverName: String,
+            coins: Number,
+            status: { type: String, default: "pending" },
+            sentAt: { type: Date, default: Date.now },
+        },
+    ],
+    lastGiftSent: { type: Object, default: {} },
 },
 { timestamps: true }
 )
