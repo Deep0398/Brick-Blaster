@@ -119,7 +119,7 @@ const facebookSchema = new mongoose.Schema({
     isOnline: { type: Boolean, default: false },
     lastActive: Date,
     fcmToken : [String],
-    friends: { type: [String], default: [] }, // Array of friend IDs
+    friends: { type: [String], default: [] }, 
 
     gifts: [
         {

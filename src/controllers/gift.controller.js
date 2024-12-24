@@ -210,8 +210,6 @@ export const receiveGift = async (req, res) => {
 };
 
 
-
-// export const receiveGift = async (req, res) => {
 //     const { receiverFacebookID, senderFacebookID, giftID } = req.body;
 
 //     if (!receiverFacebookID || !senderFacebookID || !giftID) {
